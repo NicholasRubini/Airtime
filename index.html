@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AIRTIME">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2566c5">
+    <meta name="format-detection" content="telephone=no">
+    
+    <title>AIRTIME - Jump Height Analyzer</title>
+    
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkFJUlRJTUUgLSBKdW1wIEhlaWdodCBBbmFseXplciIsCiAgInNob3J0X25hbWUiOiAiQUlSVElNRSIsCiAgImRlc2NyaXB0aW9uIjogIlN0aW1hIGwnYWx0ZXp6YSBkZWwgc2FsdG8gY29uIGFuYWxpc2kgdmlkZW8gZmxpZ2h0IHRpbWUiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzAwMDAwMCIsCiAgInRoZW1lX2NvbG9yIjogIiMyNTY2YzUiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCw8c3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDUxMiA1MTInPjxyZWN0IGZpbGw9JyUyMzAwMDAwMCcgd2lkdGg9JzUxMicgaGVpZ2h0PSc1MTInIHJ4PSc2NCcvPjx0ZXh0IHg9JzI1NicgeT0nMzIwJyBmb250LXNpemU9JzE4MCcgdGV4dC1hbmNob3I9J21pZGRsZScgZmlsbD0nJTIzMjU2NmM1Jz7ijqg8L3RleHQ+PC9zdmc+IiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfQogIF0KfQ==">
+    
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23000000' width='512' height='512' rx='64'/><text x='256' y='320' font-size='180' text-anchor='middle' fill='%232566c5'>⎨</text></svg>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2566c5;
+            --primary-light: #6fa9db;
+            --black: #000000;
+            --gray-dark: #111111;
+            --gray-ice: #ecf5f6;
+            --white: #ffffff;
+            --primary-dim: rgba(37, 102, 197, 0.15);
+            --primary-glow: rgba(37, 102, 197, 0.4);
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body { height: 100%; overflow: hidden; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--black);
+            color: var(--white);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: var(--safe-top) 0 var(--safe-bottom);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 10%, var(--primary-dim) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 90%, var(--primary-dim) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .app {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 1.5rem 0 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+
+        h1 {
+            font-family: 'Inter', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 0.15rem;
+            margin: 0.3rem 0;
+            color: var(--white);
+        }
+
+        .subtitle {
+            color: var(--gray-ice);
+            font-size: 0.75rem;
+            letter-spacing: 0.1rem;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(135deg, rgba(37,102,197,0.08), rgba(37,102,197,0.03));
+            border: 1px solid rgba(37,102,197,0.25);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .info-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 1rem;
+            cursor: pointer;
+            background: rgba(37,102,197,0.05);
+        }
+
+        .info-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        .info-toggle {
+            color: var(--primary);
+            transition: transform 0.3s;
+        }
+
+        .info-box.open .info-toggle { transform: rotate(180deg); }
+
+        .info-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+        }
+
+        .info-box.open .info-content { max-height: 2000px; }
+
+        .info-inner { padding: 1rem; padding-top: 0; }
+
+        .info-section { margin-bottom: 1rem; }
+        .info-section h4 {
+            font-size: 0.8rem;
+            color: var(--white);
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-section ul { list-style: none; }
+        .info-section li {
+            padding: 0.3rem 0 0.3rem 1.2rem;
+            position: relative;
+            font-size: 0.85rem;
+            color: var(--gray-ice);
+        }
+        .info-section li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+
+        .fps-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .fps-table th, .fps-table td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(37,102,197,0.15);
+        }
+        .fps-table th { color: var(--primary); font-size: 0.7rem; text-transform: uppercase; }
+
+        .accuracy-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .accuracy-low { background: rgba(255,107,107,0.2); color: #FF6B6B; }
+        .accuracy-med { background: rgba(255,193,7,0.2); color: #FFC107; }
+        .accuracy-high { background: rgba(78,205,196,0.2); color: #4ECDC4; }
+        .accuracy-max { background: rgba(37,102,197,0.2); color: var(--primary); }
+
+        .tip-highlight {
+            background: rgba(37,102,197,0.1);
+            border-left: 3px solid var(--primary);
+            padding: 0.6rem 0.8rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: rgba(236,245,246,0.8);
+        }
+
+        /* Sport Benchmarks */
+        .sport-benchmarks { display: grid; gap: 0.3rem; }
+        .sport-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 0.4rem;
+            align-items: center;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(37,102,197,0.1);
+            font-size: 0.75rem;
+        }
+        .sport-name { color: var(--white); font-weight: 600; }
+        .sport-level {
+            text-align: center;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            min-width: 40px;
+        }
+        .level-avg { background: rgba(255,193,7,0.15); color: #FFC107; }
+        .level-good { background: rgba(78,205,196,0.15); color: #4ECDC4; }
+        .level-elite { background: rgba(37,102,197,0.2); color: var(--primary); }
+
+        /* Athlete Profile */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.6rem;
+        }
+        .profile-stat {
+            background: var(--gray-dark);
+            border-radius: 8px;
+            padding: 0.8rem;
+            text-align: center;
+        }
+        .profile-stat.wide { grid-column: span 2; }
+        .profile-stat-value {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+        .profile-stat-label {
+            font-size: 0.65rem;
+            color: rgba(236,245,246,0.5);
+            text-transform: uppercase;
+            margin-top: 0.2rem;
+        }
+        .profile-stat-sub {
+            font-size: 0.7rem;
+            color: rgba(236,245,246,0.4);
+        }
+        .profile-empty {
+            font-size: 0.85rem;
+            color: rgba(236,245,246,0.5);
+            text-align: center;
+            padding: 1rem;
+        }
+        .profile-clear {
+            margin-top: 0.8rem;
+            padding: 0.5rem;
+            background: transparent;
+            border: 1px solid rgba(255,107,107,0.3);
+            border-radius: 6px;
+            color: #FF6B6B;
+            font-size: 0.75rem;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Athlete Inputs */
+        .athlete-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .input-group { }
+        .input-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .athlete-input {
+            flex: 1;
+            padding: 0.8rem;
+            background: var(--gray-dark);
+            border: 1px solid rgba(37,102,197,0.3);
+            border-radius: 10px;
+            color: var(--white);
+            font-size: 1rem;
+            font-family: inherit;
+            min-width: 0;
+        }
+        .athlete-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .input-unit {
+            color: rgba(236,245,246,0.5);
+            font-size: 0.85rem;
+            min-width: 25px;
+        }
+
+        /* Force-Power Profile */
+        .fp-profile {
+            margin-top: 1.2rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(37,102,197,0.1), rgba(37,102,197,0.03));
+            border: 1px solid rgba(37,102,197,0.4);
+            border-radius: 12px;
+        }
+        .fp-title {
+            font-size: 0.8rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+        .fp-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .fp-metric {
+            text-align: center;
+            padding: 0.6rem 0.3rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+        .fp-metric-value {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        .fp-metric-label {
+            font-size: 0.6rem;
+            color: rgba(236,245,246,0.5);
+            text-transform: uppercase;
+        }
+        .fp-quadrant {
+            background: var(--gray-dark);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .fp-quadrant-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            color: var(--white);
+            margin-bottom: 0.4rem;
+        }
+        .fp-quadrant-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+        .fp-quadrant-desc {
+            font-size: 0.8rem;
+            color: rgba(236,245,246,0.6);
+            line-height: 1.4;
+            margin-bottom: 0.8rem;
+        }
+        .fp-deficit {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: rgba(37,102,197,0.15);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+        }
+        .fp-cta {
+            display: block;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, var(--primary), #B8963C);
+            border-radius: 8px;
+            color: var(--black);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+        .fp-cta:active { transform: scale(0.98); }
+
+        /* Section Label */
+        .section-label {
+            font-size: 0.8rem;
+            color: rgba(236,245,246,0.6);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+        }
+
+        /* Jump Type */
+        .jump-type-section { margin-bottom: 1rem; }
+        .jump-type-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .jump-type-btn {
+            background: var(--gray-dark);
+            border: 1px solid rgba(37,102,197,0.3);
+            border-radius: 10px;
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .jump-type-btn:active { transform: scale(0.97); }
+        .jump-type-btn.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(37,102,197,0.15), rgba(37,102,197,0.05));
+            box-shadow: 0 0 15px var(--primary-dim);
+        }
+        .jump-type-btn .type-name {
+            font-weight: 700;
+            color: var(--white);
+            font-size: 0.9rem;
+        }
+        .jump-type-btn.selected .type-name { color: var(--primary); }
+        .jump-type-btn .type-desc {
+            font-size: 0.7rem;
+            color: rgba(236,245,246,0.5);
+            margin-top: 0.2rem;
+        }
+        .jump-type-note {
+            font-size: 0.75rem;
+            color: rgba(236,245,246,0.5);
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            display: none;
+        }
+        .jump-type-note.visible { display: block; }
+
+        /* Upload */
+        .upload-zone {
+            border: 2px dashed rgba(37,102,197,0.5);
+            border-radius: 12px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            background: var(--gray-dark);
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        .upload-zone:active {
+            transform: scale(0.98);
+            border-color: var(--primary);
+        }
+        .upload-icon { font-size: 3rem; margin-bottom: 0.8rem; }
+        .upload-text { font-size: 1rem; font-weight: 600; }
+        .upload-hint { font-size: 0.8rem; color: rgba(236,245,246,0.5); margin-top: 0.3rem; }
+        .upload-warning { font-size: 0.7rem; color: #ffc107; margin-top: 0.5rem; opacity: 0.8; }
+        input[type="file"] { display: none; }
+
+        /* Video Section */
+        .video-section { display: none; flex-direction: column; flex: 1; }
+        .video-section.active { display: flex; }
+        .video-wrapper {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        video {
+            display: block;
+            width: 100%;
+            max-height: 35vh;
+            object-fit: contain;
+        }
+
+        .scrubber-container {
+            padding: 0.8rem 1rem;
+            background: rgba(26,26,26,0.95);
+            border-radius: 0 0 12px 12px;
+            margin-top: -12px;
+        }
+        .frame-display {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.6rem;
+        }
+        .frame-info {
+            font-family: 'Inter', sans-serif;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        .time-info { font-size: 0.85rem; color: rgba(236,245,246,0.6); }
+
+        .scrubber {
+            width: 100%;
+            height: 44px;
+            -webkit-appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        .scrubber::-webkit-slider-runnable-track {
+            height: 8px;
+            background: var(--gray-dark);
+            border-radius: 4px;
+        }
+        .scrubber::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-top: -10px;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .video-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+        .ctrl-btn {
+            background: var(--gray-dark);
+            border: 1px solid rgba(37,102,197,0.3);
+            border-radius: 10px;
+            color: var(--white);
+            padding: 0.9rem 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .ctrl-btn:active { transform: scale(0.95); background: var(--primary-dim); }
+        .ctrl-btn .icon { font-size: 1.3rem; }
+        .ctrl-btn.small { padding: 0.4rem 0.6rem; min-width: auto; font-size: 0.8rem; background: var(--gray-dark); }
+
+        /* FPS Confirm */
+        .fps-confirm-banner {
+            display: none;
+            background: linear-gradient(135deg, rgba(37,102,197,0.15), rgba(37,102,197,0.05));
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .fps-confirm-banner.visible { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; } }
+        .fps-confirm-text { font-size: 0.85rem; margin-bottom: 0.6rem; }
+        .fps-confirm-text strong { color: var(--primary); }
+        .fps-confirm-buttons { display: flex; gap: 0.5rem; }
+        .fps-confirm-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .fps-confirm-btn.confirm { background: var(--primary); border: none; color: var(--black); }
+        .fps-confirm-btn.change { background: transparent; border: 1px solid rgba(236,245,246,0.3); color: rgba(236,245,246,0.8); }
+
+        /* Mark Buttons */
+        .mark-section { margin-bottom: 1rem; }
+        .mark-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+        .mark-buttons.three-marks {
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .mark-btn {
+            background: linear-gradient(135deg, var(--gray-dark), rgba(37,102,197,0.08));
+            border: 2px solid rgba(37,102,197,0.4);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            text-align: center;
+        }
+        .mark-buttons.three-marks .mark-btn { padding: 0.7rem 0.5rem; }
+        .mark-btn:active { transform: scale(0.97); }
+        .mark-btn .label {
+            display: block;
+            font-size: 0.75rem;
+            color: rgba(236,245,246,0.6);
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+        }
+        .mark-buttons.three-marks .mark-btn .label { font-size: 0.65rem; }
+        .mark-btn .frame-val {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+        .mark-buttons.three-marks .mark-btn .frame-val { font-size: 1.1rem; }
+
+        .mark-btn.cmstart-btn.marked { border-color: #F1C40F; box-shadow: 0 0 20px rgba(241,196,15,0.3); }
+        .mark-btn.cmstart-btn.marked .frame-val { color: #F1C40F; }
+        .mark-btn.contact-btn.marked { border-color: #9B59B6; box-shadow: 0 0 20px rgba(155,89,182,0.3); }
+        .mark-btn.contact-btn.marked .frame-val { color: #9B59B6; }
+        .mark-btn.takeoff-btn.marked { border-color: #FF6B6B; box-shadow: 0 0 20px rgba(255,107,107,0.3); }
+        .mark-btn.takeoff-btn.marked .frame-val { color: #FF6B6B; }
+        .mark-btn.landing-btn.marked { border-color: #4ECDC4; box-shadow: 0 0 20px rgba(78,205,196,0.3); }
+        .mark-btn.landing-btn.marked .frame-val { color: #4ECDC4; }
+
+        /* FPS Section */
+        .fps-section { margin-bottom: 1rem; }
+        .fps-row { display: flex; gap: 0.5rem; align-items: center; }
+        .fps-select {
+            flex: 1;
+            padding: 0.9rem 1rem;
+            background: var(--gray-dark);
+            border: 1px solid rgba(37,102,197,0.3);
+            border-radius: 10px;
+            color: var(--white);
+            font-family: inherit;
+            font-size: 1rem;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='%23D4AF37' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+        }
+        .fps-select:focus { outline: none; border-color: var(--primary); }
+        .fps-badge {
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .fps-badge.auto { background: linear-gradient(135deg, var(--primary), #B8963C); color: var(--black); }
+        .fps-badge.manual { background: var(--gray-dark); border: 1px solid rgba(236,245,246,0.3); color: rgba(236,245,246,0.6); }
+        .custom-fps-input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            background: var(--gray-dark);
+            border: 1px solid rgba(37,102,197,0.3);
+            border-radius: 10px;
+            color: var(--white);
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .custom-fps-input.visible { display: block; }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--primary), #B8963C);
+            border: none;
+            border-radius: 12px;
+            color: var(--black);
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 0.15rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .calculate-btn:active { transform: scale(0.98); }
+        .calculate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Results */
+        .results {
+            display: none;
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(37,102,197,0.12), rgba(37,102,197,0.03));
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            margin-bottom: 1rem;
+        }
+        .results.visible { display: block; animation: resultPop 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+        @keyframes resultPop { from { opacity: 0; transform: scale(0.9); } }
+
+        .result-label {
+            font-size: 0.75rem;
+            color: rgba(236,245,246,0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.15rem;
+        }
+        .result-value {
+            font-family: 'Inter', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-shadow: 0 0 30px var(--primary-glow);
+            line-height: 1;
+        }
+        .result-unit { font-size: 1.3rem; color: rgba(236,245,246,0.7); }
+        .result-jump-type { font-size: 0.8rem; color: rgba(236,245,246,0.6); margin-top: 0.3rem; }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 1.2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(37,102,197,0.2);
+        }
+        .result-stats.four-cols { grid-template-columns: repeat(4, 1fr); }
+        .result-stats.five-cols { grid-template-columns: repeat(5, 1fr); }
+        .stat-item { text-align: center; }
+        .stat-value { font-family: 'Inter', sans-serif; font-size: 1.2rem; color: var(--white); }
+        .result-stats.four-cols .stat-value,
+        .result-stats.five-cols .stat-value { font-size: 1rem; }
+        .stat-label { font-size: 0.65rem; color: rgba(236,245,246,0.5); text-transform: uppercase; }
+        .result-stats.four-cols .stat-label,
+        .result-stats.five-cols .stat-label { font-size: 0.55rem; }
+        .stat-item.highlight .stat-value { color: var(--primary); }
+        .stat-item.warning .stat-value { color: #ffc107; }
+        .stat-item.warning .stat-label { color: #ffc107; }
+        .contact-warning {
+            grid-column: 1 / -1;
+            margin-top: 0.8rem;
+            padding: 0.6rem 0.8rem;
+            background: rgba(255, 193, 7, 0.15);
+            border: 1px solid rgba(255, 193, 7, 0.4);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: #ffc107;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .weight-tip {
+            grid-column: 1 / -1;
+            margin-top: 0.8rem;
+            padding: 0.6rem 0.8rem;
+            background: rgba(37, 102, 197, 0.15);
+            border: 1px solid rgba(37, 102, 197, 0.4);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--primary-light);
+            text-align: center;
+            line-height: 1.4;
+        }
+        .athlete-input.highlight-input {
+            border-color: var(--primary) !important;
+            animation: pulse-border 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-color: var(--primary); box-shadow: 0 0 0 0 rgba(37, 102, 197, 0.4); }
+            50% { border-color: var(--primary-light); box-shadow: 0 0 8px 2px rgba(37, 102, 197, 0.3); }
+        }
+
+        .rating-badge {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1.2rem;
+            background: var(--gray-dark);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        /* Bosco Indices in Results */
+        .bosco-indices {
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(37,102,197,0.15), rgba(37,102,197,0.05));
+        }
+        .bosco-indices.new-index {
+            animation: pulseGold 0.6s ease;
+        }
+        @keyframes pulseGold {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(37,102,197,0.4); }
+            50% { box-shadow: 0 0 20px 5px rgba(37,102,197,0.4); }
+        }
+        .bosco-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+        .bosco-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+        .bosco-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 0.6rem;
+            text-align: center;
+        }
+        .bosco-item.wide { grid-column: span 2; }
+        .bosco-value {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+        .bosco-label {
+            font-size: 0.6rem;
+            color: rgba(236,245,246,0.5);
+            text-transform: uppercase;
+        }
+        .bosco-interpretation {
+            font-size: 0.65rem;
+            color: rgba(236,245,246,0.4);
+            margin-top: 0.2rem;
+        }
+
+        /* Share */
+        .share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: linear-gradient(135deg, #E1306C, #C13584, #833AB4);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .share-btn:active { transform: scale(0.98); }
+
+        /* Upsell */
+        .upsell-section {
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid rgba(37,102,197,0.2);
+        }
+        .upsell-title {
+            font-size: 0.75rem;
+            color: rgba(236,245,246,0.5);
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+        }
+        .upsell-cards { display: grid; gap: 0.8rem; }
+        .upsell-card {
+            display: block;
+            background: var(--gray-dark);
+            border: 1px solid rgba(37,102,197,0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            text-decoration: none;
+        }
+        .upsell-card:active { transform: scale(0.98); border-color: var(--primary); }
+        .upsell-card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+        .upsell-icon { font-size: 1.5rem; }
+        .upsell-card-title { font-family: 'Inter', sans-serif; color: var(--primary); font-size: 0.95rem; font-weight: 700; }
+        .upsell-card-desc { font-size: 0.8rem; color: rgba(236,245,246,0.7); line-height: 1.4; }
+        .upsell-card-cta { display: inline-block; margin-top: 0.6rem; font-size: 0.75rem; color: var(--primary); font-weight: 600; }
+
+        /* Benchmarks */
+        .benchmarks-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(37,102,197,0.2);
+        }
+        .benchmarks-title { font-size: 0.7rem; color: rgba(236,245,246,0.5); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .benchmark-bar {
+            position: relative;
+            height: 28px;
+            background: var(--gray-dark);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 0.4rem;
+        }
+        .benchmark-fill {
+            position: absolute;
+            left: 0; top: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(37,102,197,0.3), rgba(37,102,197,0.1));
+        }
+        .benchmark-marker {
+            position: absolute;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--primary);
+            box-shadow: 0 0 8px var(--primary-glow);
+            z-index: 2;
+        }
+        .benchmark-labels {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 0.5rem;
+            font-size: 0.65rem;
+            z-index: 1;
+        }
+        .benchmark-sport { color: var(--white); font-weight: 600; }
+        .benchmark-range { color: rgba(236,245,246,0.5); }
+
+        .reset-btn {
+            width: 100%;
+            padding: 1rem;
+            background: transparent;
+            border: 1px solid rgba(236,245,246,0.25);
+            border-radius: 10px;
+            color: rgba(236,245,246,0.6);
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        .reset-btn:active { background: rgba(236,245,246,0.05); }
+
+        .method-info {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: rgba(236,245,246,0.5);
+            line-height: 1.5;
+        }
+        .method-info code {
+            color: var(--primary);
+            background: rgba(37,102,197,0.1);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        footer { text-align: center; padding: 1.5rem 0 1rem; margin-top: auto; }
+        .footer-brand { font-family: 'Inter', sans-serif; color: var(--primary); font-size: 0.75rem; letter-spacing: 0.15rem; }
+        .footer-sub { color: var(--primary-light); font-size: 0.75rem; margin-top: 0.2rem; opacity: 0.7; }
+
+        #share-canvas { display: none; }
+
+        .install-prompt {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 1rem;
+            padding-bottom: calc(1rem + var(--safe-bottom));
+            background: linear-gradient(to top, var(--gray-dark), rgba(26,26,26,0.95));
+            border-top: 1px solid rgba(37,102,197,0.3);
+            z-index: 100;
+        }
+        .install-prompt.visible { display: block; animation: slideUp 0.3s; }
+        @keyframes slideUp { from { transform: translateY(100%); } }
+        .install-content { display: flex; align-items: center; gap: 1rem; max-width: 500px; margin: 0 auto; }
+        .install-icon { font-size: 2rem; }
+        .install-text { flex: 1; }
+        .install-text strong { display: block; color: var(--white); }
+        .install-text span { font-size: 0.8rem; color: rgba(236,245,246,0.6); }
+        .install-close { background: none; border: none; color: rgba(236,245,246,0.5); font-size: 1.5rem; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <div class="logo-icon">⏱</div>
+            <h1>AIRTIME</h1>
+            <p class="subtitle">Flight Time Jump Analysis</p>
+        </header>
+
+        <main>
+            <!-- Athlete Profile Box -->
+            <div class="info-box" id="profile-box">
+                <div class="info-header" onclick="toggleInfo('profile-box')">
+                    <div class="info-title">
+                        <span>👤</span> Profilo Atleta <span id="profile-badge" style="display:none;background:var(--primary);color:#000;padding:0.15rem 0.5rem;border-radius:10px;font-size:0.65rem;margin-left:0.5rem;">INDICI</span>
+                    </div>
+                    <span class="info-toggle">▼</span>
+                </div>
+                <div class="info-content">
+                    <div class="info-inner">
+                        <div id="profile-content">
+                            <p class="profile-empty">Esegui alcuni test per vedere il tuo profilo</p>
+                        </div>
+                        <button class="profile-clear" id="clear-profile" style="display:none;">🗑️ Reset Storico</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="info-box" id="tips-box">
+                <div class="info-header" onclick="toggleInfo('tips-box')">
+                    <div class="info-title"><span>📹</span> Come Filmare</div>
+                    <span class="info-toggle">▼</span>
+                </div>
+                <div class="info-content">
+                    <div class="info-inner">
+                        <div class="info-section">
+                            <h4>🎯 FPS e Precisione</h4>
+                            <table class="fps-table">
+                                <tr><th>FPS</th><th>Errore</th><th>Livello</th></tr>
+                                <tr><td>30</td><td>±4-5 cm</td><td><span class="accuracy-badge accuracy-low">Bassa</span></td></tr>
+                                <tr><td>60</td><td>±2-3 cm</td><td><span class="accuracy-badge accuracy-med">Media</span></td></tr>
+                                <tr><td>120</td><td>±1.5-2 cm</td><td><span class="accuracy-badge accuracy-high">Buona</span></td></tr>
+                                <tr><td>240</td><td>±1 cm</td><td><span class="accuracy-badge accuracy-max">Alta</span></td></tr>
+                            </table>
+                        </div>
+                        <div class="info-section">
+                            <h4>📱 iPhone Slow-Mo</h4>
+                            <ul>
+                                <li>Impostazioni → Fotocamera → Slow-mo</li>
+                                <li>Seleziona <strong>240 fps</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Benchmarks -->
+            <div class="info-box" id="benchmarks-box">
+                <div class="info-header" onclick="toggleInfo('benchmarks-box')">
+                    <div class="info-title"><span>🏆</span> Benchmark CMJ</div>
+                    <span class="info-toggle">▼</span>
+                </div>
+                <div class="info-content">
+                    <div class="info-inner">
+                        <div class="sport-benchmarks" id="benchmark-list"></div>
+                        <div class="tip-highlight" style="margin-top:0.8rem">📊 Valori cm, atleti maschi adulti</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weight & Squat Inputs -->
+            <div class="athlete-inputs">
+                <div class="input-group">
+                    <div class="section-label">Peso Corporeo</div>
+                    <div class="input-row">
+                        <input type="number" class="athlete-input" id="weight-input" placeholder="75" min="30" max="200" step="0.1">
+                        <span class="input-unit">kg</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="section-label">Squat 1RM</div>
+                    <div class="input-row">
+                        <input type="number" class="athlete-input" id="squat-input" placeholder="120" min="20" max="400" step="1">
+                        <span class="input-unit">kg</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jump Type -->
+            <div class="jump-type-section">
+                <div class="section-label">Tipo di Salto</div>
+                <div class="jump-type-grid">
+                    <button class="jump-type-btn selected" data-type="CMJ">
+                        <div class="type-name">CMJ</div>
+                        <div class="type-desc">Counter Movement</div>
+                    </button>
+                    <button class="jump-type-btn" data-type="SJ">
+                        <div class="type-name">SJ</div>
+                        <div class="type-desc">Squat Jump</div>
+                    </button>
+                    <button class="jump-type-btn" data-type="DJ">
+                        <div class="type-name">DJ</div>
+                        <div class="type-desc">Drop Jump + RSI</div>
+                    </button>
+                    <button class="jump-type-btn" data-type="ABALAKOV">
+                        <div class="type-name">Abalakov</div>
+                        <div class="type-desc">CMJ + braccia</div>
+                    </button>
+                </div>
+                <div class="jump-type-note" id="jump-type-note"></div>
+            </div>
+
+            <!-- Upload -->
+            <div id="upload-zone" class="upload-zone">
+                <div class="upload-icon">🎬</div>
+                <p class="upload-text">Carica Video del Salto</p>
+                <p class="upload-hint">MP4, MOV, WEBM</p>
+                <p class="upload-warning">⚠️ Usa video originale, non inviato via WhatsApp/Telegram</p>
+                <input type="file" id="video-input" accept="video/*">
+            </div>
+
+            <!-- Video Section -->
+            <div id="video-section" class="video-section">
+                <div class="video-wrapper">
+                    <video id="video-player" playsinline muted></video>
+                </div>
+
+                <div class="scrubber-container">
+                    <div class="frame-display">
+                        <span class="frame-info">Frame <span id="current-frame">0</span></span>
+                        <span class="time-info"><span id="current-time">0.000</span>s</span>
+                    </div>
+                    <input type="range" class="scrubber" id="scrubber" min="0" max="100" value="0">
+                </div>
+
+                <div class="video-controls">
+                    <button class="ctrl-btn small" id="prev-5-frame"><span>-5</span></button>
+                    <button class="ctrl-btn" id="prev-frame"><span class="icon">◀◀</span><span>-1</span></button>
+                    <button class="ctrl-btn" id="play-pause"><span class="icon" id="play-icon">▶</span><span id="play-text">Play</span></button>
+                    <button class="ctrl-btn" id="next-frame"><span class="icon">▶▶</span><span>+1</span></button>
+                    <button class="ctrl-btn small" id="next-5-frame"><span>+5</span></button>
+                </div>
+
+                <div class="fps-confirm-banner" id="fps-confirm-banner">
+                    <div class="fps-confirm-text">FPS rilevato: <strong id="fps-detected-value">30</strong></div>
+                    <div class="fps-confirm-buttons">
+                        <button class="fps-confirm-btn confirm" id="fps-confirm-yes">✓ Conferma</button>
+                        <button class="fps-confirm-btn change" id="fps-confirm-no">Cambia</button>
+                    </div>
+                </div>
+
+                <div class="mark-section">
+                    <div class="mark-buttons" id="mark-buttons">
+                        <button class="mark-btn takeoff-btn" id="mark-takeoff">
+                            <span class="label">🔴 Takeoff</span>
+                            <span class="frame-val" id="takeoff-frame">--</span>
+                        </button>
+                        <button class="mark-btn landing-btn" id="mark-landing">
+                            <span class="label">🔵 Landing</span>
+                            <span class="frame-val" id="landing-frame">--</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="fps-section">
+                    <div class="section-label">Frame Rate</div>
+                    <div class="fps-row">
+                        <select class="fps-select" id="fps-select">
+                            <option value="30">30 FPS</option>
+                            <option value="60">60 FPS</option>
+                            <option value="120">120 FPS</option>
+                            <option value="240">240 FPS</option>
+                            <option value="custom">Custom...</option>
+                        </select>
+                        <div class="fps-badge manual" id="fps-badge">MANUALE</div>
+                    </div>
+                    <input type="number" class="custom-fps-input" id="custom-fps" placeholder="FPS" min="1" max="1000">
+                </div>
+
+                <button class="calculate-btn" id="calculate-btn" disabled>Calcola</button>
+
+                <div class="results" id="results">
+                    <div class="result-label">Altezza Salto</div>
+                    <div class="result-value"><span id="result-cm">0</span><span class="result-unit">cm</span></div>
+                    <div class="result-jump-type" id="result-jump-type">CMJ</div>
+                    <div class="result-stats" id="result-stats"></div>
+                    <div class="rating-badge" id="rating">-</div>
+
+                    <!-- Bosco Indices -->
+                    <div class="bosco-indices" id="bosco-indices" style="display:none">
+                        <div class="bosco-title">🧪 Indici Bosco Calcolati</div>
+                        <div class="bosco-grid" id="bosco-grid"></div>
+                    </div>
+
+                    <button class="share-btn" id="share-btn">📸 Condividi</button>
+
+                    <!-- Regular Upsell (for basic users) -->
+                    <div class="upsell-section" id="upsell-section">
+                        <div class="upsell-title" id="upsell-title">🚀 Migliora il Tuo Salto</div>
+                        <div class="upsell-cards">
+                            <a href="https://www.nicholasrubini.it/prodotto/defy-gravity/" target="_blank" class="upsell-card">
+                                <div class="upsell-card-header">
+                                    <span class="upsell-icon">🚀</span>
+                                    <span class="upsell-card-title">Defy Gravity</span>
+                                </div>
+                                <div class="upsell-card-desc">Programma per aumentare il salto verticale</div>
+                                <span class="upsell-card-cta">Scopri →</span>
+                            </a>
+                            <a href="https://www.nicholasrubini.it/prodotto/allenare-la-forza-esplosiva/" target="_blank" class="upsell-card">
+                                <div class="upsell-card-header">
+                                    <span class="upsell-icon">🎓</span>
+                                    <span class="upsell-card-title">Forza Esplosiva</span>
+                                </div>
+                                <div class="upsell-card-desc">Video corso sulla scienza dell'esplosività</div>
+                                <span class="upsell-card-cta">Vai al corso →</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Force-Power Profile (for complete athletes with CMJ+SJ+DJ+Squat1RM) -->
+                    <div class="fp-profile" id="fp-profile" style="display:none">
+                        <div class="fp-title">💪 Profilo Forza-Potenza</div>
+                        <div class="fp-metrics">
+                            <div class="fp-metric">
+                                <div class="fp-metric-value" id="fp-rel-str">--</div>
+                                <div class="fp-metric-label">Forza Rel.</div>
+                            </div>
+                            <div class="fp-metric">
+                                <div class="fp-metric-value" id="fp-cmj">--</div>
+                                <div class="fp-metric-label">CMJ</div>
+                            </div>
+                            <div class="fp-metric">
+                                <div class="fp-metric-value" id="fp-power">--</div>
+                                <div class="fp-metric-label">Potenza</div>
+                            </div>
+                        </div>
+                        <div class="fp-quadrant">
+                            <div class="fp-quadrant-icon" id="fp-icon">🎯</div>
+                            <div class="fp-quadrant-name" id="fp-quadrant-name">--</div>
+                            <div class="fp-deficit" id="fp-deficit" style="display:none"></div>
+                            <div class="fp-quadrant-desc" id="fp-quadrant-desc"></div>
+                            <a href="https://www.preparazioneatletica.com/" target="_blank" class="fp-cta">🚀 Scopri Performance A.I.</a>
+                        </div>
+                    </div>
+
+                    <div class="benchmarks-section" id="benchmarks-section">
+                        <div class="benchmarks-title">Confronto Sport (CMJ)</div>
+                        <div id="benchmark-bars"></div>
+                    </div>
+                </div>
+
+                <button class="reset-btn" id="reset-btn">↻ Nuovo Test</button>
+
+                <div class="method-info">
+                    Analisi basata sul metodo flight time, gold standard della biomeccanica sportiva.
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-brand">NICHOLAS RUBINI</div>
+            <div class="footer-sub">nicholasrubini.it</div>
+        </footer>
+    </div>
+
+    <canvas id="share-canvas" width="1080" height="1920"></canvas>
+
+    <div class="install-prompt" id="install-prompt">
+        <div class="install-content">
+            <div class="install-icon">📲</div>
+            <div class="install-text">
+                <strong>Installa AIRTIME</strong>
+                <span>Condividi → Aggiungi a Home</span>
+            </div>
+            <button class="install-close" id="install-close">×</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATA
+        // ============================================
+        const SPORT_BENCHMARKS = {
+            'Basket': { emoji: '🏀', avg: 50, good: 60, elite: 70 },
+            'Pallavolo': { emoji: '🏐', avg: 50, good: 60, elite: 70 },
+            'Calcio': { emoji: '⚽', avg: 40, good: 50, elite: 60 },
+            'Sprint': { emoji: '🏃', avg: 50, good: 60, elite: 70 },
+            'Powerlifting': { emoji: '🏋️', avg: 45, good: 55, elite: 65 },
+            'Combat Sport': { emoji: '🥊', avg: 45, good: 55, elite: 65 },
+            'Fitness': { emoji: '👤', avg: 35, good: 45, elite: 55 }
+        };
+
+        const jumpTypeInfo = {
+            'CMJ': { name: 'Counter Movement Jump', note: 'Braccia ai fianchi, contromovimento naturale.', markers: 2 },
+            'SJ': { name: 'Squat Jump', note: 'Partenza statica da 90°, nessun contromovimento.', markers: 2 },
+            'DJ': { name: 'Drop Jump', note: 'Caduta da box + salto reattivo. Marca: Contact → Takeoff → Landing.', markers: 3 },
+            'ABALAKOV': { name: 'Abalakov', note: 'CMJ con slancio braccia.', markers: 2 }
+        };
+
+        // ============================================
+        // STATE
+        // ============================================
+        let videoFps = 30;
+        let fpsConfirmed = false;
+        let takeoffFrame = null;
+        let landingFrame = null;
+        let contactFrame = null;  // For DJ (ground contact)
+        let selectedJumpType = 'CMJ';
+        let lastResult = { cm: 0, flightTime: 0, contactTime: null, rsi: null, stiffness: null, power: null };
+
+        // Load stored data
+        let athleteData = JSON.parse(localStorage.getItem('hopp_athlete') || '{}');
+        let jumpHistory = JSON.parse(localStorage.getItem('hopp_history') || '{}');
+
+        // ============================================
+        // DOM
+        // ============================================
+        const $ = id => document.getElementById(id);
+
+        // ============================================
+        // INIT
+        // ============================================
+        function init() {
+            generateBenchmarkList();
+            
+            // Load saved weight and squat
+            if (athleteData.weight) {
+                $('weight-input').value = athleteData.weight;
+            }
+            if (athleteData.squat1rm) {
+                $('squat-input').value = athleteData.squat1rm;
+            }
+            
+            // Calculate FP profile from saved data if available
+            updateSavedForcePowerProfile();
+            
+            // Load athlete profile (after FP calculation)
+            loadAthleteProfile();
+
+            // Service Worker
+            if ('serviceWorker' in navigator) {
+                const sw = `self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))));`;
+                navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw], {type:'application/javascript'}))).catch(()=>{});
+            }
+
+            // iOS install prompt
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.navigator.standalone && !localStorage.getItem('hopp-dismissed')) {
+                setTimeout(() => $('install-prompt').classList.add('visible'), 3000);
+            }
+        }
+
+        function generateBenchmarkList() {
+            $('benchmark-list').innerHTML = Object.entries(SPORT_BENCHMARKS).map(([sport, d]) => `
+                <div class="sport-row">
+                    <span class="sport-name">${d.emoji} ${sport}</span>
+                    <span class="sport-level level-avg">${d.avg}+</span>
+                    <span class="sport-level level-good">${d.good}+</span>
+                    <span class="sport-level level-elite">${d.elite}+</span>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // ATHLETE PROFILE
+        // ============================================
+        // Helper to get height value (handles both old format: number, and new format: {height, ...})
+        function getJumpHeight(jump) {
+            if (!jump) return null;
+            return typeof jump === 'object' ? jump.height : jump;
+        }
+        
+        function loadAthleteProfile() {
+            const hasData = jumpHistory.CMJ || jumpHistory.SJ || jumpHistory.ABALAKOV || jumpHistory.DJ;
+            const cmjH = getJumpHeight(jumpHistory.CMJ);
+            const sjH = getJumpHeight(jumpHistory.SJ);
+            const abaH = getJumpHeight(jumpHistory.ABALAKOV);
+            const hasIndices = (cmjH && sjH) || (cmjH && abaH);
+            // Only consider FP profile valid if squat is currently set
+            const hasFPProfile = athleteData.quadrant && athleteData.relativeStrength && athleteData.squat1rm > 0;
+            
+            // Show/hide badge
+            $('profile-badge').style.display = (hasIndices || hasFPProfile) ? 'inline' : 'none';
+            
+            if (!hasData) {
+                $('profile-content').innerHTML = '<p class="profile-empty">Esegui alcuni test per vedere il tuo profilo</p>';
+                $('clear-profile').style.display = 'none';
+                $('profile-box').classList.remove('open');
+                return;
+            }
+
+            // Auto-open profile when there's data, especially indices or FP profile
+            if (hasIndices || hasFPProfile) {
+                $('profile-box').classList.add('open');
+            }
+            
+            $('clear-profile').style.display = 'block';
+            
+            let html = '<div class="profile-grid">';
+            
+            // Show stored jumps
+            if (cmjH) html += profileStat(cmjH, 'CMJ', 'cm');
+            if (sjH) html += profileStat(sjH, 'SJ', 'cm');
+            if (abaH) html += profileStat(abaH, 'Abalakov', 'cm');
+            if (jumpHistory.DJ) html += profileStat(jumpHistory.DJ.height, 'DJ', 'cm');
+            
+            // Derived indices
+            if (cmjH && sjH) {
+                const ie = ((cmjH - sjH) / sjH * 100).toFixed(1);
+                const ieInterpret = ie >= 15 ? 'Ottima elasticità' : ie >= 10 ? 'Buona' : 'Deficit SSC';
+                html += `<div class="profile-stat">
+                    <div class="profile-stat-value">${ie}%</div>
+                    <div class="profile-stat-label">Indice Elasticità</div>
+                    <div class="profile-stat-sub">${ieInterpret}</div>
+                </div>`;
+            }
+            
+            if (cmjH && abaH) {
+                const icb = ((abaH - cmjH) / cmjH * 100).toFixed(1);
+                const icbInterpret = icb >= 12 ? 'Ottima coord.' : icb >= 8 ? 'Buona' : 'Da migliorare';
+                html += `<div class="profile-stat">
+                    <div class="profile-stat-value">${icb}%</div>
+                    <div class="profile-stat-label">Indice Coord. Braccia</div>
+                    <div class="profile-stat-sub">${icbInterpret}</div>
+                </div>`;
+            }
+            
+            if (jumpHistory.DJ && jumpHistory.DJ.rsi) {
+                const rsiInterpret = jumpHistory.DJ.rsi >= 2.5 ? 'Élite' : jumpHistory.DJ.rsi >= 2.0 ? 'Buono' : jumpHistory.DJ.rsi >= 1.5 ? 'Medio' : 'Da migliorare';
+                html += `<div class="profile-stat">
+                    <div class="profile-stat-value">${jumpHistory.DJ.rsi.toFixed(2)}</div>
+                    <div class="profile-stat-label">RSI (Drop Jump)</div>
+                    <div class="profile-stat-sub">${rsiInterpret}</div>
+                </div>`;
+            }
+            
+            if (athleteData.lastPower) {
+                html += `<div class="profile-stat">
+                    <div class="profile-stat-value">${athleteData.lastPower}</div>
+                    <div class="profile-stat-label">Potenza (W)</div>
+                </div>`;
+            }
+            
+            // Force-Power Profile - only show if squat is currently set
+            if (athleteData.relativeStrength && athleteData.squat1rm > 0) {
+                html += `<div class="profile-stat">
+                    <div class="profile-stat-value">${athleteData.relativeStrength.toFixed(2)}x</div>
+                    <div class="profile-stat-label">Forza Relativa</div>
+                    <div class="profile-stat-sub">Squat/BW</div>
+                </div>`;
+            }
+            
+            // Only show quadrant if we have CURRENT squat data (not just cached)
+            if (athleteData.quadrant && athleteData.squat1rm > 0) {
+                html += `<div class="profile-stat wide">
+                    <div class="profile-stat-value" style="font-size:0.9rem">${athleteData.quadrant}</div>
+                    <div class="profile-stat-label">Profilo Forza-Potenza</div>
+                </div>`;
+            }
+            
+            // Show FP analysis prompt if we have CMJ but missing squat
+            if (cmjH && athleteData.weight && !athleteData.squat1rm) {
+                html += `<div class="profile-stat wide" style="background:rgba(37,102,197,0.1)">
+                    <div class="profile-stat-value" style="font-size:0.8rem;color:var(--primary)">💪 Inserisci Squat 1RM</div>
+                    <div class="profile-stat-label">Per sbloccare il Profilo Forza-Potenza</div>
+                </div>`;
+            }
+            
+            html += '</div>';
+            $('profile-content').innerHTML = html;
+        }
+        
+        // Update Force-Power profile using saved data (not from current test)
+        function updateSavedForcePowerProfile() {
+            const weight = athleteData.weight;
+            const squat = athleteData.squat1rm;
+            const cmjH = getJumpHeight(jumpHistory.CMJ);
+            
+            if (!weight || !squat || !cmjH) return;
+            
+            // Calculate metrics
+            const relStr = squat / weight;
+            const power = Math.round(60.7 * cmjH + 45.3 * weight - 2055);
+            
+            // Expected CMJ based on relative strength
+            const expectedCMJ = 18 + (relStr * 18);
+            const deficit = expectedCMJ - cmjH;
+            
+            // Determine quadrant
+            const isStrong = relStr >= 1.5;
+            const isExplosive = cmjH >= 45;
+            
+            let quadrant;
+            if (isStrong && isExplosive) {
+                quadrant = 'Atleta Completo';
+            } else if (isStrong && !isExplosive) {
+                quadrant = 'Deficit di Potenza';
+            } else if (!isStrong && isExplosive) {
+                quadrant = 'Deficit di Forza';
+            } else {
+                quadrant = 'Costruisci le Basi';
+            }
+            
+            // Save to athlete data
+            athleteData.relativeStrength = relStr;
+            athleteData.quadrant = quadrant;
+            athleteData.lastPower = power;
+            athleteData.fpDeficit = deficit;
+            localStorage.setItem('hopp_athlete', JSON.stringify(athleteData));
+        }
+
+        function profileStat(value, label, unit) {
+            return `<div class="profile-stat">
+                <div class="profile-stat-value">${value.toFixed ? value.toFixed(1) : value}${unit}</div>
+                <div class="profile-stat-label">${label}</div>
+            </div>`;
+        }
+
+        function saveJumpToHistory(type, heightCm, extraData = {}) {
+            if (type === 'DJ') {
+                jumpHistory[type] = { height: heightCm, ...extraData };
+            } else {
+                jumpHistory[type] = heightCm;
+            }
+            localStorage.setItem('hopp_history', JSON.stringify(jumpHistory));
+            loadAthleteProfile();
+        }
+
+        $('clear-profile').addEventListener('click', () => {
+            if (confirm('Reset tutto lo storico?')) {
+                jumpHistory = {};
+                athleteData = {};
+                localStorage.removeItem('hopp_history');
+                localStorage.removeItem('hopp_athlete');
+                $('weight-input').value = '';
+                $('squat-input').value = '';
+                loadAthleteProfile();
+            }
+        });
+
+        // ============================================
+        // ATHLETE INPUTS (Weight & Squat)
+        // ============================================
+        $('weight-input').addEventListener('change', () => {
+            const w = parseFloat($('weight-input').value);
+            if (w > 0) {
+                athleteData.weight = w;
+                // Recalculate force-power profile
+                updateSavedForcePowerProfile();
+            } else {
+                // Weight cleared - reset related data
+                athleteData.weight = 0;
+                athleteData.quadrant = null;
+                athleteData.relativeStrength = null;
+            }
+            localStorage.setItem('hopp_athlete', JSON.stringify(athleteData));
+            loadAthleteProfile();
+        });
+
+        $('squat-input').addEventListener('change', () => {
+            const s = parseFloat($('squat-input').value);
+            if (s > 0) {
+                athleteData.squat1rm = s;
+                // Recalculate force-power profile with saved CMJ data
+                updateSavedForcePowerProfile();
+            } else {
+                // Squat cleared - reset profile data
+                athleteData.squat1rm = 0;
+                athleteData.quadrant = null;
+                athleteData.relativeStrength = null;
+            }
+            localStorage.setItem('hopp_athlete', JSON.stringify(athleteData));
+            loadAthleteProfile();
+        });
+
+        // ============================================
+        // TOGGLE INFO
+        // ============================================
+        function toggleInfo(id) { $(id).classList.toggle('open'); }
+
+        // ============================================
+        // JUMP TYPE
+        // ============================================
+        document.querySelectorAll('.jump-type-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.jump-type-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedJumpType = btn.dataset.type;
+                updateJumpTypeUI();
+            });
+        });
+
+        function updateJumpTypeUI() {
+            const info = jumpTypeInfo[selectedJumpType];
+            $('jump-type-note').textContent = info.note;
+            $('jump-type-note').classList.add('visible');
+            
+            const mb = $('mark-buttons');
+            if (selectedJumpType === 'DJ') {
+                mb.classList.add('three-marks');
+                mb.innerHTML = `
+                    <button class="mark-btn contact-btn" id="mark-contact"><span class="label">🟣 Contact</span><span class="frame-val" id="contact-frame">--</span></button>
+                    <button class="mark-btn takeoff-btn" id="mark-takeoff"><span class="label">🔴 Takeoff</span><span class="frame-val" id="takeoff-frame">--</span></button>
+                    <button class="mark-btn landing-btn" id="mark-landing"><span class="label">🔵 Landing</span><span class="frame-val" id="landing-frame">--</span></button>
+                `;
+            } else {
+                // CMJ, SJ, Abalakov: 2 markers
+                mb.classList.remove('three-marks');
+                mb.innerHTML = `
+                    <button class="mark-btn takeoff-btn" id="mark-takeoff"><span class="label">🔴 Takeoff</span><span class="frame-val" id="takeoff-frame">--</span></button>
+                    <button class="mark-btn landing-btn" id="mark-landing"><span class="label">🔵 Landing</span><span class="frame-val" id="landing-frame">--</span></button>
+                `;
+            }
+            attachMarkListeners();
+            takeoffFrame = landingFrame = contactFrame = null;
+            checkReady();
+        }
+
+        function attachMarkListeners() {
+            $('mark-takeoff')?.addEventListener('click', () => {
+                takeoffFrame = getCurrentFrame();
+                $('takeoff-frame').textContent = takeoffFrame;
+                $('mark-takeoff').classList.add('marked');
+                checkReady();
+                navigator.vibrate?.(50);
+            });
+            $('mark-landing')?.addEventListener('click', () => {
+                landingFrame = getCurrentFrame();
+                $('landing-frame').textContent = landingFrame;
+                $('mark-landing').classList.add('marked');
+                checkReady();
+                navigator.vibrate?.(50);
+            });
+            $('mark-contact')?.addEventListener('click', () => {
+                contactFrame = getCurrentFrame();
+                $('contact-frame').textContent = contactFrame;
+                $('mark-contact').classList.add('marked');
+                checkReady();
+                navigator.vibrate?.(50);
+            });
+        }
+        attachMarkListeners();
+
+        function checkReady() {
+            if (selectedJumpType === 'DJ') {
+                $('calculate-btn').disabled = !(contactFrame !== null && takeoffFrame !== null && landingFrame !== null && contactFrame < takeoffFrame && takeoffFrame < landingFrame);
+            } else {
+                // CMJ, SJ, Abalakov: 2 markers
+                $('calculate-btn').disabled = !(takeoffFrame !== null && landingFrame !== null && landingFrame > takeoffFrame);
+            }
+        }
+
+        // ============================================
+        // VIDEO
+        // ============================================
+        $('upload-zone').addEventListener('click', () => $('video-input').click());
+        $('video-input').addEventListener('change', e => { if (e.target.files.length) loadVideo(e.target.files[0]); });
+
+        async function loadVideo(file) {
+            const vp = $('video-player');
+            vp.src = URL.createObjectURL(file);
+            vp.addEventListener('loadedmetadata', async () => {
+                $('upload-zone').style.display = 'none';
+                $('video-section').classList.add('active');
+                fpsConfirmed = false;
+                $('fps-badge').textContent = 'MANUALE';
+                $('fps-badge').className = 'fps-badge manual';
+                $('fps-confirm-banner').classList.remove('visible');
+                await attemptFpsDetection();
+                $('scrubber').max = vp.duration;
+                $('scrubber').step = 1 / videoFps;
+                vp.pause();
+                vp.currentTime = 0;
+                updateDisplay();
+            }, { once: true });
+        }
+
+        async function attemptFpsDetection() {
+            if (!('requestVideoFrameCallback' in HTMLVideoElement.prototype)) return;
+            try {
+                const detected = await detectFps();
+                if (detected && detected >= 15 && detected <= 300) {
+                    const common = [24,25,30,60,120,240];
+                    let fps = detected;
+                    for (const c of common) if (Math.abs(detected - c) <= 3) { fps = c; break; }
+                    $('fps-detected-value').textContent = fps + ' FPS';
+                    $('fps-confirm-banner').classList.add('visible');
+                    const opt = Array.from($('fps-select').options).find(o => +o.value === fps);
+                    if (opt) $('fps-select').value = fps; else { $('fps-select').value = 'custom'; $('custom-fps').value = fps; $('custom-fps').classList.add('visible'); }
+                    videoFps = fps;
+                }
+            } catch(e) {}
+        }
+
+        function detectFps() {
+            return new Promise(resolve => {
+                const vp = $('video-player');
+                const ts = [];
+                let n = 0, done = false;
+                const cb = (now, meta) => {
+                    if (done) return;
+                    ts.push(meta.mediaTime);
+                    if (++n >= 15) {
+                        done = true;
+                        vp.pause();
+                        vp.currentTime = 0;
+                        const deltas = [];
+                        for (let i = 1; i < ts.length; i++) { const d = ts[i] - ts[i-1]; if (d > 0 && d < 0.2) deltas.push(d); }
+                        if (deltas.length >= 5) { deltas.sort((a,b) => a-b); resolve(Math.round(1 / deltas[Math.floor(deltas.length/2)])); }
+                        else resolve(null);
+                        return;
+                    }
+                    vp.requestVideoFrameCallback(cb);
+                };
+                vp.currentTime = 0;
+                vp.requestVideoFrameCallback(cb);
+                vp.muted = true;
+                vp.play()?.catch(() => { done = true; resolve(null); });
+                setTimeout(() => { if (!done) { done = true; vp.pause(); vp.currentTime = 0; resolve(null); } }, 2000);
+            });
+        }
+
+        $('fps-confirm-yes').addEventListener('click', () => {
+            fpsConfirmed = true;
+            $('fps-badge').textContent = 'AUTO';
+            $('fps-badge').className = 'fps-badge auto';
+            $('fps-confirm-banner').classList.remove('visible');
+            $('scrubber').step = 1 / videoFps;
+        });
+        $('fps-confirm-no').addEventListener('click', () => { $('fps-confirm-banner').classList.remove('visible'); $('fps-select').focus(); });
+
+        // Controls
+        const getCurrentFrame = () => Math.floor($('video-player').currentTime * videoFps);
+        function updateDisplay() {
+            $('current-frame').textContent = getCurrentFrame();
+            $('current-time').textContent = $('video-player').currentTime.toFixed(3);
+            $('scrubber').value = $('video-player').currentTime;
+        }
+        $('video-player').addEventListener('timeupdate', updateDisplay);
+        $('scrubber').addEventListener('input', () => { $('video-player').currentTime = +$('scrubber').value; updateDisplay(); });
+
+        $('play-pause').addEventListener('click', () => {
+            const vp = $('video-player');
+            if (vp.paused) { vp.play(); $('play-icon').textContent = '⏸'; $('play-text').textContent = 'Pause'; }
+            else { vp.pause(); $('play-icon').textContent = '▶'; $('play-text').textContent = 'Play'; }
+        });
+        $('video-player').addEventListener('pause', () => { $('play-icon').textContent = '▶'; $('play-text').textContent = 'Play'; });
+        $('video-player').addEventListener('play', () => { $('play-icon').textContent = '⏸'; $('play-text').textContent = 'Pause'; });
+
+        function stepFrame(d) { const vp = $('video-player'); vp.pause(); vp.currentTime = Math.max(0, Math.min(vp.duration, vp.currentTime + d/videoFps)); updateDisplay(); }
+        $('prev-frame').addEventListener('click', () => stepFrame(-1));
+        $('next-frame').addEventListener('click', () => stepFrame(1));
+        $('prev-5-frame').addEventListener('click', () => stepFrame(-5));
+        $('next-5-frame').addEventListener('click', () => stepFrame(5));
+        let stepInt;
+        $('prev-frame').addEventListener('touchstart', e => { e.preventDefault(); stepFrame(-1); stepInt = setInterval(() => stepFrame(-1), 100); });
+        $('prev-frame').addEventListener('touchend', () => clearInterval(stepInt));
+        $('next-frame').addEventListener('touchstart', e => { e.preventDefault(); stepFrame(1); stepInt = setInterval(() => stepFrame(1), 100); });
+        $('next-frame').addEventListener('touchend', () => clearInterval(stepInt));
+
+        // FPS select - manual selection counts as confirmed
+        $('fps-select').addEventListener('change', () => {
+            $('fps-badge').textContent = 'MANUALE';
+            $('fps-badge').className = 'fps-badge manual';
+            $('fps-confirm-banner').classList.remove('visible');
+            if ($('fps-select').value === 'custom') { 
+                $('custom-fps').classList.add('visible'); 
+                $('custom-fps').focus();
+                fpsConfirmed = false; // Custom requires input
+            } else { 
+                $('custom-fps').classList.remove('visible'); 
+                videoFps = +$('fps-select').value; 
+                $('scrubber').step = 1/videoFps; 
+                fpsConfirmed = true; // Standard selection = confirmed
+                updateDisplay(); 
+            }
+        });
+        $('custom-fps').addEventListener('input', () => { 
+            const v = +$('custom-fps').value; 
+            if (v > 0) { 
+                videoFps = v; 
+                $('scrubber').step = 1/videoFps; 
+                fpsConfirmed = true; // Custom value entered = confirmed
+                updateDisplay(); 
+            } 
+        });
+
+        // ============================================
+        // CALCULATE
+        // ============================================
+        $('calculate-btn').addEventListener('click', calculate);
+
+        function calculate() {
+            // Check FPS is confirmed
+            if (!fpsConfirmed) {
+                alert('⚠️ Conferma il Frame Rate prima di calcolare.\n\nIl FPS rilevato potrebbe essere errato. Verifica e conferma nel banner sopra il video.');
+                $('fps-confirm-banner').classList.add('visible');
+                return;
+            }
+            
+            // Flight frames: frames BETWEEN takeoff (last on ground) and landing (first on ground)
+            // takeoff and landing are both "on ground" frames, so actual flight = landing - takeoff - 1
+            const flightFrames = landingFrame - takeoffFrame - 1;
+            const flightTime = flightFrames / videoFps;
+            const h = (9.81 * flightTime * flightTime) / 8 * 100;
+            
+            lastResult = { cm: h, flightTime };
+
+            // For DJ: contact time, RSI, Stiffness
+            if (selectedJumpType === 'DJ') {
+                // Contact frames: frames FROM contact (first on ground) TO takeoff (last on ground), inclusive
+                const ctFrames = takeoffFrame - contactFrame + 1;
+                const ct = ctFrames / videoFps;
+                lastResult.contactTime = ct;
+                lastResult.rsi = (h / 100) / ct;
+                
+                // Vertical Stiffness (Dalleau et al. 2004)
+                // K = M × π × (Tf + Tc) / [Tc² × ((Tf + Tc)/π − Tc/4)]
+                // Note: denominator term is MINUS Tc/4 per original derivation
+                // Requires body mass - expressed in kN/m
+                const mass = parseFloat($('weight-input').value);
+                if (mass > 0) {
+                    const tf = flightTime;
+                    const tc = ct;
+                    const numerator = mass * Math.PI * (tf + tc);
+                    const denom = (tf + tc) / Math.PI - tc / 4;
+                    // Guard against non-physical values (denom <= 0)
+                    if (denom > 0) {
+                        const denominator = tc * tc * denom;
+                        lastResult.stiffness = (numerator / denominator) / 1000; // kN/m
+                    } else {
+                        lastResult.stiffness = null; // Non-physical timing
+                    }
+                } else {
+                    lastResult.stiffness = null; // Cannot calculate without mass
+                }
+            }
+
+            // Power (Sayers formula)
+            const weight = parseFloat($('weight-input').value);
+            if (weight > 0) {
+                lastResult.power = Math.round(60.7 * h + 45.3 * weight - 2055);
+                athleteData.lastPower = lastResult.power;
+                localStorage.setItem('hopp_athlete', JSON.stringify(athleteData));
+            }
+
+            // Save to history
+            if (selectedJumpType === 'DJ') {
+                saveJumpToHistory('DJ', h, { rsi: lastResult.rsi, stiffness: lastResult.stiffness, contactTime: lastResult.contactTime });
+            } else {
+                saveJumpToHistory(selectedJumpType, h);
+            }
+
+            // Update UI
+            $('result-cm').textContent = h.toFixed(1);
+            $('result-jump-type').textContent = jumpTypeInfo[selectedJumpType].name;
+            $('rating').textContent = getRating(h);
+
+            // Stats
+            const stats = $('result-stats');
+            if (selectedJumpType === 'DJ') {
+                const hasStiffness = lastResult.stiffness !== null;
+                const contactMs = lastResult.contactTime * 1000;
+                const contactWarning = contactMs > 250;
+                stats.className = 'result-stats ' + (hasStiffness ? 'five-cols' : 'four-cols');
+                stats.innerHTML = `
+                    <div class="stat-item"><div class="stat-value">${(h/2.54).toFixed(1)}"</div><div class="stat-label">Inch</div></div>
+                    <div class="stat-item"><div class="stat-value">${(flightTime*1000).toFixed(0)}</div><div class="stat-label">Flight ms</div></div>
+                    <div class="stat-item ${contactWarning ? 'warning' : ''}"><div class="stat-value">${contactMs.toFixed(0)}</div><div class="stat-label">Contact ms</div></div>
+                    <div class="stat-item highlight"><div class="stat-value">${lastResult.rsi.toFixed(2)}</div><div class="stat-label">RSI</div></div>
+                    ${hasStiffness ? `<div class="stat-item"><div class="stat-value">${lastResult.stiffness.toFixed(1)}</div><div class="stat-label">kN/m</div></div>` : ''}
+                `;
+                // Warning for slow contact time
+                if (contactWarning) {
+                    stats.innerHTML += `<div class="contact-warning">⚠️ Contact &gt;250ms: non è un DJ reattivo puro. RSI e Stiffness potrebbero non essere validi per valutare la reattività.</div>`;
+                }
+                // Tip for missing weight
+                if (!hasStiffness) {
+                    stats.innerHTML += `<div class="weight-tip">💡 Inserisci il peso corporeo per calcolare Stiffness e Potenza</div>`;
+                    $('weight-input').classList.add('highlight-input');
+                } else {
+                    $('weight-input').classList.remove('highlight-input');
+                }
+            } else {
+                // CMJ, SJ, Abalakov
+                stats.className = 'result-stats' + (lastResult.power ? ' four-cols' : '');
+                stats.innerHTML = `
+                    <div class="stat-item"><div class="stat-value">${(h/2.54).toFixed(1)}"</div><div class="stat-label">Inches</div></div>
+                    <div class="stat-item"><div class="stat-value">${flightTime.toFixed(3)}s</div><div class="stat-label">Flight</div></div>
+                    <div class="stat-item"><div class="stat-value">${flightFrames}</div><div class="stat-label">Frames</div></div>
+                    ${lastResult.power ? `<div class="stat-item highlight"><div class="stat-value">${lastResult.power}</div><div class="stat-label">Watt</div></div>` : ''}
+                `;
+                // Tip for missing power
+                if (!lastResult.power) {
+                    stats.innerHTML += `<div class="weight-tip">💡 Inserisci il peso corporeo per calcolare la Potenza</div>`;
+                    $('weight-input').classList.add('highlight-input');
+                } else {
+                    $('weight-input').classList.remove('highlight-input');
+                }
+            }
+
+            // Bosco Indices
+            showBoscoIndices();
+
+            // Force-Power Profile
+            updateForcePowerProfile(h);
+
+            // Benchmarks - only for CMJ (literature validated)
+            if (selectedJumpType === 'CMJ') {
+                generateBenchmarkBars(h);
+                $('benchmarks-section').style.display = 'block';
+            } else {
+                $('benchmarks-section').style.display = 'none';
+            }
+
+            $('results').classList.add('visible');
+            $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            navigator.vibrate?.([50, 50, 100]);
+        }
+
+        function getRating(h) {
+            if (h >= 80) return '⚡ ÉLITE';
+            if (h >= 65) return '🔥 ECCELLENTE';
+            if (h >= 50) return '✓ BUONO';
+            if (h >= 40) return '→ NELLA MEDIA';
+            if (h >= 30) return '↗ DA MIGLIORARE';
+            return '🎯 PRINCIPIANTE';
+        }
+
+        function showBoscoIndices() {
+            const grid = $('bosco-grid');
+            const indices = $('bosco-indices');
+            let html = '';
+            let hasNewIndex = false;
+            
+            const cmjH = getJumpHeight(jumpHistory.CMJ);
+            const sjH = getJumpHeight(jumpHistory.SJ);
+            const abaH = getJumpHeight(jumpHistory.ABALAKOV);
+
+            // IE: Indice di Elasticità
+            if (cmjH && sjH) {
+                hasNewIndex = true;
+                const ie = ((cmjH - sjH) / sjH * 100);
+                // 10-15% optimal, >20% may indicate weak concentric (SJ)
+                let ieText;
+                if (ie > 20) {
+                    ieText = '⚠️ Alto - SJ debole?';
+                } else if (ie >= 10) {
+                    ieText = '✅ Ottimale';
+                } else if (ie >= 5) {
+                    ieText = '👍 Buono';
+                } else {
+                    ieText = '⚠️ Deficit SSC';
+                }
+                html += `<div class="bosco-item"><div class="bosco-value">${ie.toFixed(1)}%</div><div class="bosco-label">Indice Elasticità</div><div class="bosco-interpretation">${ieText}</div></div>`;
+            }
+
+            // ICB: Indice Coordinazione Braccia
+            if (cmjH && abaH) {
+                hasNewIndex = true;
+                const icb = ((abaH - cmjH) / cmjH * 100);
+                const icbText = icb >= 12 ? '✅ Ottima coord.' : icb >= 8 ? '👍 Buona' : '⚠️ Da migliorare';
+                html += `<div class="bosco-item"><div class="bosco-value">${icb.toFixed(1)}%</div><div class="bosco-label">Indice Coord. Braccia</div><div class="bosco-interpretation">${icbText}</div></div>`;
+            }
+
+            // Power
+            if (lastResult.power) {
+                html += `<div class="bosco-item"><div class="bosco-value">${lastResult.power} W</div><div class="bosco-label">Potenza</div></div>`;
+            }
+
+            // RSI & Stiffness for DJ
+            if (selectedJumpType === 'DJ') {
+                const rsiText = lastResult.rsi >= 2.5 ? 'Élite' : lastResult.rsi >= 2.0 ? 'Buono' : lastResult.rsi >= 1.5 ? 'Medio' : 'Base';
+                html += `<div class="bosco-item"><div class="bosco-value">${lastResult.rsi.toFixed(2)}</div><div class="bosco-label">RSI</div><div class="bosco-interpretation">${rsiText}</div></div>`;
+                if (lastResult.stiffness !== null) {
+                    const stiffText = lastResult.stiffness >= 40 ? 'Élite' : lastResult.stiffness >= 30 ? 'Buono' : lastResult.stiffness >= 20 ? 'Medio' : 'Base';
+                    html += `<div class="bosco-item"><div class="bosco-value">${lastResult.stiffness.toFixed(1)} kN/m</div><div class="bosco-label">Vertical Stiffness</div><div class="bosco-interpretation">${stiffText}</div></div>`;
+                }
+            }
+
+            if (html) {
+                grid.innerHTML = html;
+                indices.style.display = 'block';
+                if (hasNewIndex) {
+                    indices.classList.add('new-index');
+                    setTimeout(() => indices.classList.remove('new-index'), 600);
+                }
+            } else {
+                indices.style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // FORCE-POWER PROFILE & UPSELL
+        // ============================================
+        function updateForcePowerProfile(cmjHeight) {
+            const weight = athleteData.weight;
+            const squat = athleteData.squat1rm;
+            const cmjH = getJumpHeight(jumpHistory.CMJ);
+            const sjH = getJumpHeight(jumpHistory.SJ);
+            const djH = jumpHistory.DJ ? jumpHistory.DJ.height : null;
+            
+            const fpSection = $('fp-profile');
+            const upsellSection = $('upsell-section');
+            
+            // Check if "complete athlete" - has ALL: CMJ + SJ + DJ + Squat 1RM
+            const isCompleteAthlete = cmjH && sjH && djH && squat && weight;
+            
+            if (!isCompleteAthlete) {
+                // Show regular upsell, hide FP profile
+                fpSection.style.display = 'none';
+                upsellSection.style.display = 'block';
+                
+                // Update upsell title based on performance
+                const t = $('upsell-title');
+                if (cmjHeight < 40) t.textContent = '🚀 Costruisci le Basi';
+                else if (cmjHeight < 55) t.textContent = '📈 Livello Successivo';
+                else if (cmjHeight < 70) t.textContent = '🔥 Raggiungi l\'Élite';
+                else t.textContent = '⚡ Perfeziona';
+                return;
+            }
+            
+            // Complete athlete - show FP profile, hide regular upsell
+            fpSection.style.display = 'block';
+            upsellSection.style.display = 'none';
+            
+            // Calculate metrics
+            const relStr = squat / weight;
+            const power = lastResult.power || Math.round(60.7 * cmjH + 45.3 * weight - 2055);
+            
+            // Expected CMJ based on relative strength
+            const expectedCMJ = 18 + (relStr * 18);
+            const deficit = expectedCMJ - cmjH;
+            
+            // Update metrics display
+            $('fp-rel-str').textContent = relStr.toFixed(2) + 'x';
+            $('fp-cmj').textContent = cmjH.toFixed(0) + 'cm';
+            $('fp-power').textContent = power + 'W';
+            
+            // Determine quadrant
+            const isStrong = relStr >= 1.5;
+            const isExplosive = cmjH >= 45;
+            
+            let quadrant, icon, desc;
+            
+            if (isStrong && isExplosive) {
+                quadrant = 'Atleta Completo';
+                icon = '⚡';
+                desc = 'Ottimo equilibrio forza-potenza. Mantieni questo livello e lavora sulle qualità sport-specifiche per massimizzare il transfer in campo.';
+            } else if (isStrong && !isExplosive) {
+                quadrant = 'Deficit di Potenza';
+                icon = '🎯';
+                desc = 'Hai la forza ma non la sfrutti! Focus su pliometria, lavoro balistico e jump training per convertire la forza in esplosività e velocità.';
+            } else if (!isStrong && isExplosive) {
+                quadrant = 'Deficit di Forza';
+                icon = '💪';
+                desc = 'Buona esplosività naturale, ma la forza massimale è carente. Priorità: costruire forza con squat e lavoro degli arti inferiori per sbloccare nuovi livelli.';
+            } else {
+                quadrant = 'Costruisci le Basi';
+                icon = '🏗️';
+                desc = 'Priorità: costruire una solida base di forza. Un programma strutturato di forza e condizionamento ti porterà rapidamente a livelli superiori.';
+            }
+            
+            // Update UI
+            $('fp-icon').textContent = icon;
+            $('fp-quadrant-name').textContent = quadrant;
+            $('fp-quadrant-desc').textContent = desc;
+            
+            // Show deficit if significant
+            if (deficit > 3) {
+                $('fp-deficit').style.display = 'inline-block';
+                $('fp-deficit').textContent = `Gap: ${deficit.toFixed(0)}cm sotto il potenziale`;
+            } else if (deficit < -5) {
+                $('fp-deficit').style.display = 'inline-block';
+                $('fp-deficit').textContent = `+${Math.abs(deficit).toFixed(0)}cm sopra le attese!`;
+            } else {
+                $('fp-deficit').style.display = 'none';
+            }
+            
+            // Save to athlete data
+            athleteData.relativeStrength = relStr;
+            athleteData.quadrant = quadrant;
+            localStorage.setItem('hopp_athlete', JSON.stringify(athleteData));
+        }
+
+        function generateBenchmarkBars(h) {
+            const c = $('benchmark-bars');
+            c.innerHTML = Object.entries(SPORT_BENCHMARKS).map(([s, d]) => {
+                const fill = Math.min(100, d.elite / 90 * 100);
+                const mark = Math.min(98, Math.max(2, h / 90 * 100));
+                return `<div class="benchmark-bar"><div class="benchmark-fill" style="width:${fill}%"></div><div class="benchmark-marker" style="left:${mark}%"></div><div class="benchmark-labels"><span class="benchmark-sport">${d.emoji} ${s}</span><span class="benchmark-range">${d.avg}/${d.good}/${d.elite}</span></div></div>`;
+            }).join('');
+        }
+
+        // ============================================
+        // SHARE
+        // ============================================
+        $('share-btn').addEventListener('click', async () => {
+            const canvas = $('share-canvas'), ctx = canvas.getContext('2d'), w = 1080, h = 1920;
+            ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, w, h);
+            const gr = ctx.createRadialGradient(w/2, h/3, 0, w/2, h/3, w);
+            gr.addColorStop(0, 'rgba(37,102,197,0.15)'); gr.addColorStop(1, 'transparent');
+            ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = '#2566c5'; ctx.font = '100px Arial'; ctx.textAlign = 'center';
+            ctx.fillText('⏱', w/2, 200);
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 72px Inter, Arial'; ctx.fillText('AIRTIME', w/2, 320);
+            ctx.fillStyle = 'rgba(236,245,246,0.6)'; ctx.font = '36px Arial'; ctx.fillText(jumpTypeInfo[selectedJumpType].name, w/2, 400);
+            ctx.fillStyle = '#2566c5'; ctx.font = 'bold 280px Inter, Arial'; ctx.fillText(lastResult.cm.toFixed(1), w/2, 750);
+            ctx.fillStyle = 'rgba(236,245,246,0.8)'; ctx.font = 'bold 80px Inter, Arial'; ctx.fillText('cm', w/2, 860);
+            ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.roundRect(w/2-200, 920, 400, 80, 40); ctx.fill();
+            ctx.strokeStyle = '#2566c5'; ctx.lineWidth = 3; ctx.stroke();
+            ctx.fillStyle = '#2566c5'; ctx.font = 'bold 40px Inter, Arial'; ctx.fillText(getRating(lastResult.cm), w/2, 975);
+            ctx.fillStyle = 'rgba(236,245,246,0.5)'; ctx.font = '32px Arial';
+            let extra = `${(lastResult.cm/2.54).toFixed(1)}"`;
+            if (lastResult.power) extra += ` • ${lastResult.power}W`;
+            if (lastResult.rsi) extra += ` • RSI ${lastResult.rsi.toFixed(2)}`;
+            ctx.fillText(extra, w/2, 1100);
+            ctx.fillStyle = '#2566c5'; ctx.font = 'bold 36px Inter, Arial'; ctx.fillText('NICHOLAS RUBINI', w/2, 1700);
+            ctx.fillStyle = 'rgba(236,245,246,0.4)'; ctx.font = '28px Arial'; ctx.fillText('nicholasrubini.it', w/2, 1820);
+            try {
+                const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+                const file = new File([blob], 'airtime.png', { type: 'image/png' });
+                if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], title: 'AIRTIME Result' });
+                else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'airtime.png'; a.click(); }
+            } catch(e) {}
+        });
+
+        // ============================================
+        // RESET
+        // ============================================
+        $('reset-btn').addEventListener('click', () => {
+            takeoffFrame = landingFrame = contactFrame = null;
+            $('results').classList.remove('visible');
+            $('calculate-btn').disabled = true;
+            $('upload-zone').style.display = 'block';
+            $('video-section').classList.remove('active');
+            $('video-player').src = '';
+            $('video-input').value = '';
+            $('fps-confirm-banner').classList.remove('visible');
+            fpsConfirmed = false;
+            $('fps-badge').textContent = 'MANUALE';
+            $('fps-badge').className = 'fps-badge manual';
+            updateJumpTypeUI();
+        });
+
+        $('install-close').addEventListener('click', () => {
+            $('install-prompt').classList.remove('visible');
+            localStorage.setItem('hopp-dismissed', '1');
+        });
+
+        // Prevent double-tap zoom
+        let lt = 0;
+        document.addEventListener('touchend', e => { const n = Date.now(); if (n - lt <= 300) e.preventDefault(); lt = n; }, false);
+
+        // Init
+        init();
+    </script>
+</body>
+</html>
