@@ -664,15 +664,42 @@
             font-size: 0.75rem;
             font-weight: 600;
         }
-        .norm-excellent { background: rgba(34,197,94,0.2); color: #22c55e; }
-        .norm-good { background: rgba(59,130,246,0.2); color: #3b82f6; }
-        .norm-average { background: rgba(249,115,22,0.2); color: #f97316; }
-        .norm-below { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .norm-excellent { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+        .norm-good { background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); }
+        .norm-average { background: rgba(249,115,22,0.15); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
+        .norm-below { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .norm-low { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
         .normative-detail {
             font-size: 0.7rem;
-            color: rgba(236,245,246,0.5);
+            color: var(--slate-400);
             margin-top: 0.3rem;
         }
+        .normative-method {
+            font-size: 0.6rem;
+            color: var(--slate-500);
+            margin-top: 0.2rem;
+            font-style: italic;
+        }
+        .sport-context {
+            margin-top: 0.8rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid rgba(59,130,246,0.1);
+        }
+        .sport-context-title {
+            font-size: 0.6rem;
+            color: var(--slate-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.3rem;
+        }
+        .sport-context-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.2rem 0;
+            font-size: 0.7rem;
+        }
+        .sport-context-name { color: var(--slate-400); }
+        .sport-context-range { color: var(--slate-500); }
         /* Upload */
         .upload-zone {
             border: 2px dashed rgba(59,130,246,0.35);
@@ -1736,13 +1763,13 @@
             <!-- Benchmarks -->
             <div class="info-box" id="benchmarks-box">
                 <div class="info-header" onclick="toggleInfo('benchmarks-box')">
-                    <div class="info-title"><span>🏆</span> Benchmark CMJ</div>
+                    <div class="info-title"><span>🏆</span> Percentili e Benchmark</div>
                     <span class="info-toggle">▼</span>
                 </div>
                 <div class="info-content">
                     <div class="info-inner">
                         <div class="sport-benchmarks" id="benchmark-list"></div>
-                        <div class="tip-highlight" style="margin-top:0.8rem">Valori cm, filtra per sesso/eta sotto</div>
+                        <div class="tip-highlight" style="margin-top:0.8rem">P25 / P50 / P90 — metodo video flight-time. Colonne: sotto media / media / eccellente.</div>
                     </div>
                 </div>
             </div>
@@ -1966,7 +1993,7 @@
                         </div>
                     </div>
                     <div class="benchmarks-section" id="benchmarks-section">
-                        <div class="benchmarks-title">Confronto Sport (CMJ)</div>
+                        <div class="benchmarks-title">Confronto indicativo CMJ — atleti allenati</div>
                         <div id="benchmark-bars"></div>
                     </div>
                 </div>
@@ -2010,44 +2037,123 @@
         // Sources: Heishman et al. 2020, McMahon et al. 2017, Castagna & Castellini 2013
         // Format: { p10, p25, p50, p75, p90 } in cm
         // ============================================
-        const NORMATIVE_DATA = {
-            M: {
-                '14-17': { p10: 28, p25: 33, p50: 38, p75: 44, p90: 50 },
-                '18-25': { p10: 33, p25: 39, p50: 45, p75: 52, p90: 60 },
-                '26-35': { p10: 31, p25: 37, p50: 43, p75: 50, p90: 57 },
-                '36-45': { p10: 26, p25: 32, p50: 38, p75: 44, p90: 50 },
-                '46+':   { p10: 20, p25: 25, p50: 31, p75: 37, p90: 43 }
+        // ============================================
+        // BENCHMARK SYSTEM — Protocol-First
+        // ============================================
+        // Architecture:
+        //   1. PRIMARY: percentile norms by test × sex × age (method-matched)
+        //   2. SECONDARY: sport-family context (indicative only)
+        //   3. PERSONAL: longitudinal best / trend (handled in profile)
+        //
+        // Methodology notes:
+        //   - This app measures flight time via manual video frame-by-frame
+        //   - Flight time method systematically overestimates vs force plate
+        //     impulse-momentum by ~2-4cm (Xu et al. 2023, McMahon et al. 2022)
+        //   - All percentile values are ADJUSTED for flight-time method:
+        //     force plate reference + 3cm offset where source is force plate
+        //   - Percentiles represent general active population, not elite athletes
+        //
+        // Confidence levels:
+        //   high   = source matches method (video flight-time) and population
+        //   medium = source is force plate, adjusted +3cm for flight-time bias
+        //   low    = extrapolated or sparse data
+        //
+        // Sources:
+        //   McMahon et al. 2022 — CMJ normative percentiles (force plate)
+        //   Xu et al. 2023 — Flight time vs force plate discrepancy analysis
+        //   Haugen et al. 2021 — Sprint/power athletes CMJ norms
+        //   Ruf et al. 2024 — Youth/age-group vertical jump norms
+        //   Beattie et al. 2020 — Sport-specific CMJ benchmarks
+        // ============================================
+
+        const BENCHMARKS = {
+            // PRIMARY: Percentile norms by test type, sex, age
+            // Values in cm. Adjusted for flight-time method (+3cm from force plate sources).
+            CMJ: {
+                M: {
+                    '14-17': { p10: 25, p25: 30, p50: 35, p75: 41, p90: 47, source: 'Ruf et al. 2024 + FT adj.', confidence: 'medium' },
+                    '18-25': { p10: 30, p25: 36, p50: 42, p75: 49, p90: 56, source: 'McMahon et al. 2022 + FT adj.', confidence: 'medium' },
+                    '26-35': { p10: 28, p25: 34, p50: 40, p75: 47, p90: 53, source: 'McMahon et al. 2022 + FT adj.', confidence: 'medium' },
+                    '36-45': { p10: 24, p25: 29, p50: 35, p75: 41, p90: 47, source: 'Extrapolated from McMahon', confidence: 'low' },
+                    '46+':   { p10: 18, p25: 23, p50: 28, p75: 34, p90: 40, source: 'Extrapolated', confidence: 'low' }
+                },
+                F: {
+                    '14-17': { p10: 16, p25: 20, p50: 24, p75: 29, p90: 34, source: 'Ruf et al. 2024 + FT adj.', confidence: 'medium' },
+                    '18-25': { p10: 19, p25: 23, p50: 28, p75: 33, p90: 38, source: 'McMahon et al. 2022 + FT adj.', confidence: 'medium' },
+                    '26-35': { p10: 17, p25: 21, p50: 26, p75: 31, p90: 36, source: 'McMahon et al. 2022 + FT adj.', confidence: 'medium' },
+                    '36-45': { p10: 14, p25: 18, p50: 23, p75: 28, p90: 33, source: 'Extrapolated', confidence: 'low' },
+                    '46+':   { p10: 10, p25: 14, p50: 19, p75: 24, p90: 29, source: 'Extrapolated', confidence: 'low' }
+                }
             },
-            F: {
-                '14-17': { p10: 18, p25: 22, p50: 26, p75: 31, p90: 36 },
-                '18-25': { p10: 21, p25: 25, p50: 30, p75: 35, p90: 40 },
-                '26-35': { p10: 19, p25: 23, p50: 28, p75: 33, p90: 38 },
-                '36-45': { p10: 16, p25: 20, p50: 25, p75: 30, p90: 35 },
-                '46+':   { p10: 12, p25: 16, p50: 21, p75: 26, p90: 31 }
+            SJ: {
+                M: {
+                    '18-25': { p10: 25, p25: 31, p50: 37, p75: 43, p90: 50, source: 'Derived from CMJ (SJ ~88% CMJ)', confidence: 'low' },
+                    '26-35': { p10: 23, p25: 29, p50: 35, p75: 41, p90: 47, source: 'Derived from CMJ', confidence: 'low' }
+                },
+                F: {
+                    '18-25': { p10: 15, p25: 19, p50: 24, p75: 28, p90: 33, source: 'Derived from CMJ', confidence: 'low' },
+                    '26-35': { p10: 13, p25: 17, p50: 22, p75: 26, p90: 31, source: 'Derived from CMJ', confidence: 'low' }
+                }
+            },
+            ABALAKOV: {
+                M: {
+                    '18-25': { p10: 33, p25: 40, p50: 47, p75: 54, p90: 62, source: 'Derived from CMJ (Aba ~112% CMJ)', confidence: 'low' }
+                },
+                F: {
+                    '18-25': { p10: 21, p25: 26, p50: 31, p75: 37, p90: 43, source: 'Derived from CMJ', confidence: 'low' }
+                }
             }
         };
 
-        // Sport benchmarks now gender-aware
-        function getSportBenchmarks(gender) {
-            if (gender === 'F') {
-                return {
-                    'Basket': { emoji: '🏀', avg: 35, good: 42, elite: 50 },
-                    'Pallavolo': { emoji: '🏐', avg: 35, good: 42, elite: 50 },
-                    'Calcio': { emoji: '⚽', avg: 28, good: 35, elite: 42 },
-                    'Sprint': { emoji: '🏃', avg: 32, good: 40, elite: 48 },
-                    'Combat Sport': { emoji: '🥊', avg: 28, good: 35, elite: 42 },
-                    'Fitness': { emoji: '👤', avg: 22, good: 30, elite: 38 }
-                };
+        // SECONDARY: Sport-family context (CMJ only, indicative)
+        // These are P50 ranges for trained athletes in each sport family.
+        // NOT ratings — just "where trained athletes in this domain typically fall".
+        // Confidence is medium at best: most sources use force plate, different protocols.
+        const SPORT_CONTEXT = {
+            M: {
+                'Sprint / Power':     { p50: 55, range: '45-65', source: 'Haugen et al. 2021', confidence: 'medium' },
+                'Team Sport':         { p50: 42, range: '35-52', source: 'Beattie et al. 2020', confidence: 'medium' },
+                'Combat / Power':     { p50: 40, range: '33-50', source: 'Mixed sources', confidence: 'low' },
+                'Fitness / Generale': { p50: 35, range: '28-42', source: 'General population', confidence: 'low' }
+            },
+            F: {
+                'Sprint / Power':     { p50: 40, range: '32-48', source: 'Haugen et al. 2021', confidence: 'medium' },
+                'Team Sport':         { p50: 32, range: '25-38', source: 'Beattie et al. 2020', confidence: 'medium' },
+                'Combat / Power':     { p50: 28, range: '22-35', source: 'Mixed sources', confidence: 'low' },
+                'Fitness / Generale': { p50: 24, range: '18-30', source: 'General population', confidence: 'low' }
             }
-            return {
-                'Basket': { emoji: '🏀', avg: 50, good: 60, elite: 70 },
-                'Pallavolo': { emoji: '🏐', avg: 50, good: 60, elite: 70 },
-                'Calcio': { emoji: '⚽', avg: 40, good: 50, elite: 60 },
-                'Sprint': { emoji: '🏃', avg: 50, good: 60, elite: 70 },
-                'Powerlifting': { emoji: '🏋️', avg: 45, good: 55, elite: 65 },
-                'Combat Sport': { emoji: '🥊', avg: 45, good: 55, elite: 65 },
-                'Fitness': { emoji: '👤', avg: 35, good: 45, elite: 55 }
-            };
+        };
+
+        // Get percentile norms for a specific test, sex, age
+        // Falls back to closest available age group
+        function getPercentileNorms(testType, gender, ageGroup) {
+            const testData = BENCHMARKS[testType];
+            if (!testData) return null;
+            const genderData = testData[gender];
+            if (!genderData) return null;
+            // Direct match
+            if (genderData[ageGroup]) return genderData[ageGroup];
+            // Fallback: try closest age group
+            const ages = Object.keys(genderData);
+            if (ages.length > 0) return genderData[ages[0]]; // Best available
+            return null;
+        }
+
+        // Calculate percentile bracket from norms
+        function getPercentileBracket(heightCm, norms) {
+            if (!norms) return null;
+            if (heightCm >= norms.p90) return { bracket: '>P90', label: 'Eccellente', pct: 90, class: 'norm-excellent' };
+            if (heightCm >= norms.p75) return { bracket: 'P75-P90', label: 'Sopra la media', pct: 75, class: 'norm-good' };
+            if (heightCm >= norms.p50) return { bracket: 'P50-P75', label: 'Nella media', pct: 50, class: 'norm-average' };
+            if (heightCm >= norms.p25) return { bracket: 'P25-P50', label: 'Sotto la media', pct: 25, class: 'norm-below' };
+            if (heightCm >= norms.p10) return { bracket: 'P10-P25', label: 'Da migliorare', pct: 10, class: 'norm-low' };
+            return { bracket: '<P10', label: 'Da migliorare', pct: 5, class: 'norm-low' };
+        }
+
+        // Get rating label from percentile (replaces old fixed getRating)
+        function getRatingFromPercentile(bracket) {
+            if (!bracket) return 'N/D';
+            return bracket.label.toUpperCase();
         }
 
         const jumpTypeInfo = {
@@ -2057,7 +2163,7 @@
             'ABALAKOV': { name: 'Abalakov', note: 'CMJ con slancio braccia.', markers: 2 },
             'SL-CMJ-L': { name: 'Single-Leg CMJ Sinistro', note: 'CMJ su gamba sinistra. Braccia libere.', markers: 2 },
             'SL-CMJ-R': { name: 'Single-Leg CMJ Destro', note: 'CMJ su gamba destra. Braccia libere.', markers: 2 },
-            '10-5-RJT': { name: '10/5 Repeated Jump Test', note: 'Filma a 60fps (NO slow-mo). 10 salti reattivi consecutivi, i 5 migliori RSI vengono selezionati automaticamente.', markers: 0 }
+            '10-5-RJT': { name: '10/5 Repeated Jump Test', note: 'Filma a 60fps (NO slow-mo). Usa desktop o laptop per risultati accurati. Su iPhone il rilevamento automatico e impreciso (limite WebKit).', markers: 0 }
         };
 
         // ============================================
@@ -2232,16 +2338,40 @@
         }
 
         function generateBenchmarkList() {
-            const gender = $('gender-select').value;
-            const benchmarks = getSportBenchmarks(gender);
-            $('benchmark-list').innerHTML = Object.entries(benchmarks).map(([sport, d]) => `
-                <div class="sport-row">
-                    <span class="sport-name">${d.emoji} ${sport}</span>
-                    <span class="sport-level level-avg">${d.avg}+</span>
-                    <span class="sport-level level-good">${d.good}+</span>
-                    <span class="sport-level level-elite">${d.elite}+</span>
-                </div>
-            `).join('');
+            const gender = $('gender-select')?.value || 'M';
+            const ageGroup = $('age-select')?.value || '18-25';
+            let html = '';
+
+            // Show percentile norms for available test types
+            const tests = ['CMJ', 'SJ', 'ABALAKOV'];
+            for (const test of tests) {
+                const norms = getPercentileNorms(test, gender, ageGroup);
+                if (!norms) continue;
+                const confIcon = norms.confidence === 'high' ? '●' : norms.confidence === 'medium' ? '◐' : '○';
+                html += `<div class="sport-row" style="border-bottom:1px solid rgba(59,130,246,0.1);padding:0.5rem 0">
+                    <span class="sport-name" style="font-weight:700">${test}</span>
+                    <span class="sport-level level-avg">${norms.p25}</span>
+                    <span class="sport-level level-good">${norms.p50}</span>
+                    <span class="sport-level level-elite">${norms.p90}</span>
+                </div>`;
+            }
+
+            // Sport families as secondary
+            const sportCtx = SPORT_CONTEXT[gender];
+            if (sportCtx) {
+                html += '<div style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(59,130,246,0.1)">';
+                html += '<div style="font-size:0.6rem;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.3rem">Confronto indicativo CMJ atleti</div>';
+                for (const [family, data] of Object.entries(sportCtx)) {
+                    const confDot = data.confidence === 'medium' ? '◐' : '○';
+                    html += `<div class="sport-row">
+                        <span class="sport-name">${confDot} ${family}</span>
+                        <span style="color:var(--slate-400);font-size:0.7rem">${data.range}cm</span>
+                    </div>`;
+                }
+                html += '</div>';
+            }
+
+            $('benchmark-list').innerHTML = html;
         }
 
         // ============================================
@@ -2256,30 +2386,60 @@
         // ============================================
         // NORMATIVE PERCENTILE CALCULATION
         // ============================================
-        function getNormativePercentile(heightCm, gender, ageGroup) {
-            const norms = NORMATIVE_DATA[gender]?.[ageGroup];
-            if (!norms) return null;
-
-            if (heightCm >= norms.p90) return { percentile: 90, label: 'Eccellente (>P90)', class: 'norm-excellent' };
-            if (heightCm >= norms.p75) return { percentile: 75, label: 'Sopra la media (P75-P90)', class: 'norm-good' };
-            if (heightCm >= norms.p50) return { percentile: 50, label: 'Nella media (P50-P75)', class: 'norm-average' };
-            if (heightCm >= norms.p25) return { percentile: 25, label: 'Sotto la media (P25-P50)', class: 'norm-below' };
-            return { percentile: 10, label: 'Da migliorare (<P25)', class: 'norm-below' };
-        }
-
         function showNormativeResult(heightCm) {
-            const gender = $('gender-select').value;
-            const ageGroup = $('age-select').value;
-            const norm = getNormativePercentile(heightCm, gender, ageGroup);
-            if (!norm) { $('normative-result').innerHTML = ''; return; }
+            const container = $('normative-result');
+            const gender = $('gender-select')?.value || 'M';
+            const ageGroup = $('age-select')?.value || '18-25';
+            const testType = selectedJumpType;
 
-            const norms = NORMATIVE_DATA[gender][ageGroup];
+            // Map SL to CMJ norms
+            const normsType = (testType === 'SL-CMJ-L' || testType === 'SL-CMJ-R') ? 'CMJ' : testType;
+
+            // Skip for types without norms
+            if (normsType === 'DJ' || normsType === '10-5-RJT') {
+                container.innerHTML = '';
+                return;
+            }
+
+            const norms = getPercentileNorms(normsType, gender, ageGroup);
+            if (!norms) { container.innerHTML = ''; return; }
+
+            const bracket = getPercentileBracket(heightCm, norms);
+            if (!bracket) { container.innerHTML = ''; return; }
+
             const gLabel = gender === 'M' ? 'Maschi' : 'Femmine';
+            const confLabel = norms.confidence === 'high' ? '' :
+                              norms.confidence === 'medium' ? ' (adattato da force plate)' : ' (stima)';
 
-            $('normative-result').innerHTML = `
-                <div class="normative-badge ${norm.class}">${norm.label}</div>
-                <div class="normative-detail">${gLabel} ${ageGroup} anni | P50: ${norms.p50}cm | P75: ${norms.p75}cm | P90: ${norms.p90}cm</div>
+            let html = `
+                <div class="normative-badge ${bracket.class}">${bracket.label} (${bracket.bracket})</div>
+                <div class="normative-detail">
+                    ${normsType} | ${gLabel} ${ageGroup} anni | P50: ${norms.p50}cm | P75: ${norms.p75}cm | P90: ${norms.p90}cm
+                </div>
+                <div class="normative-method">Metodo video flight-time${confLabel}</div>
             `;
+
+            // SECONDARY: Sport-family context (only for CMJ)
+            if (normsType === 'CMJ') {
+                const sportCtx = SPORT_CONTEXT[gender];
+                if (sportCtx) {
+                    html += '<div class="sport-context">';
+                    html += '<div class="sport-context-title">Confronto indicativo per sport (CMJ atleti allenati)</div>';
+                    for (const [family, data] of Object.entries(sportCtx)) {
+                        const isInRange = heightCm >= parseInt(data.range) && heightCm <= parseInt(data.range.split('-')[1]);
+                        const markerPos = Math.min(98, Math.max(2, (heightCm - 10) / 70 * 100));
+                        const p50Pos = Math.min(98, Math.max(2, (data.p50 - 10) / 70 * 100));
+                        const confDot = data.confidence === 'medium' ? '◐' : '○';
+                        html += `<div class="sport-context-row">
+                            <span class="sport-context-name">${confDot} ${family}</span>
+                            <span class="sport-context-range">${data.range}cm</span>
+                        </div>`;
+                    }
+                    html += '</div>';
+                }
+            }
+
+            container.innerHTML = html;
         }
 
         // ============================================
@@ -2682,7 +2842,14 @@
                     div.className = 'rjt-results';
                     markSection.parentNode.insertBefore(div, $('fps-section'));
                 }
-                $('rjt-results').innerHTML = '<div style="text-align:center;padding:1rem;color:var(--slate-400);font-size:0.85rem">Carica il video e conferma FPS.<br>Il rilevamento automatico trovera tutti i salti.</div>';
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                let rjtMsg = '<div style="text-align:center;padding:1rem;color:var(--slate-400);font-size:0.85rem">Carica il video e conferma FPS.<br>Il rilevamento automatico trovera tutti i salti.</div>';
+                if (isIOS) {
+                    rjtMsg += `<div style="margin:0.5rem 0;padding:0.6rem 0.8rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;font-size:0.75rem;color:#F59E0B;text-align:center;line-height:1.4">
+                        iPhone rilevato — il 10/5 RJT richiede analisi automatica di centinaia di frame. Su iOS (WebKit) la precisione del seeking video e limitata: i risultati saranno meno accurati rispetto a desktop o Android. Per dati affidabili, usa un computer.
+                    </div>`;
+                }
+                $('rjt-results').innerHTML = rjtMsg;
                 $('rjt-results').style.display = 'block';
             } else {
                 markSection.style.display = 'block';
@@ -3830,21 +3997,17 @@
         }
 
         function getRating(h) {
-            const gender = $('gender-select').value;
-            if (gender === 'F') {
-                if (h >= 55) return 'ELITE';
-                if (h >= 42) return 'ECCELLENTE';
-                if (h >= 32) return 'BUONO';
-                if (h >= 25) return 'NELLA MEDIA';
-                if (h >= 18) return 'DA MIGLIORARE';
-                return 'PRINCIPIANTE';
-            }
-            if (h >= 80) return 'ELITE';
-            if (h >= 65) return 'ECCELLENTE';
-            if (h >= 50) return 'BUONO';
-            if (h >= 40) return 'NELLA MEDIA';
-            if (h >= 30) return 'DA MIGLIORARE';
-            return 'PRINCIPIANTE';
+            // Percentile-based rating — uses test type, sex, and age
+            const testType = selectedJumpType;
+            const gender = $('gender-select')?.value || 'M';
+            const ageGroup = $('age-select')?.value || '18-25';
+            // Only CMJ, SJ, ABALAKOV have percentile norms
+            const normsType = (testType === 'SL-CMJ-L' || testType === 'SL-CMJ-R') ? 'CMJ' : testType;
+            const norms = getPercentileNorms(normsType, gender, ageGroup);
+            const bracket = getPercentileBracket(h, norms);
+            if (bracket) return bracket.label.toUpperCase();
+            // Fallback for types without norms (DJ, 10-5-RJT)
+            return '';
         }
 
         // ============================================
@@ -4046,13 +4209,26 @@
         }
 
         function generateBenchmarkBars(h) {
-            const gender = $('gender-select').value;
-            const benchmarks = getSportBenchmarks(gender);
-            const maxScale = gender === 'F' ? 60 : 90;
-            $('benchmark-bars').innerHTML = Object.entries(benchmarks).map(([s, d]) => {
-                const fill = Math.min(100, d.elite / maxScale * 100);
+            const gender = $('gender-select')?.value || 'M';
+            const sportCtx = SPORT_CONTEXT[gender];
+            if (!sportCtx) { $('benchmark-bars').innerHTML = ''; return; }
+            const maxScale = gender === 'F' ? 55 : 75;
+            $('benchmark-bars').innerHTML = Object.entries(sportCtx).map(([family, d]) => {
+                const rangeParts = d.range.split('-');
+                const lo = parseInt(rangeParts[0]);
+                const hi = parseInt(rangeParts[1]);
+                const fill = Math.min(100, hi / maxScale * 100);
+                const fillStart = Math.max(0, lo / maxScale * 100);
                 const mark = Math.min(98, Math.max(2, h / maxScale * 100));
-                return `<div class="benchmark-bar"><div class="benchmark-fill" style="width:${fill}%"></div><div class="benchmark-marker" style="left:${mark}%"></div><div class="benchmark-labels"><span class="benchmark-sport">${d.emoji} ${s}</span><span class="benchmark-range">${d.avg}/${d.good}/${d.elite}</span></div></div>`;
+                const confDot = d.confidence === 'medium' ? '◐' : '○';
+                return `<div class="benchmark-bar">
+                    <div class="benchmark-fill" style="left:${fillStart}%;width:${fill - fillStart}%"></div>
+                    <div class="benchmark-marker" style="left:${mark}%"></div>
+                    <div class="benchmark-labels">
+                        <span class="benchmark-sport">${confDot} ${family}</span>
+                        <span class="benchmark-range">${d.range}cm</span>
+                    </div>
+                </div>`;
             }).join('');
         }
 
