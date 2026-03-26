@@ -1501,143 +1501,6 @@
         .motion-chart-marker.contact { background: #9B59B6; }
         /* Canvas for frame analysis (hidden) */
         #detect-canvas { display: none; }
-        /* 10-5 RJT Results */
-        .rjt-results {
-            display: none;
-            margin-bottom: 1rem;
-        }
-        .rjt-header {
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        .rjt-title {
-            font-family: var(--font-display);
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--white);
-        }
-        .rjt-subtitle {
-            font-size: 0.75rem;
-            color: var(--slate-400);
-            margin-top: 0.2rem;
-        }
-        .rjt-main-stat {
-            text-align: center;
-            padding: 1.2rem;
-            background: linear-gradient(145deg, rgba(20,184,166,0.08), rgba(59,130,246,0.05));
-            border: 1px solid rgba(20,184,166,0.25);
-            border-radius: var(--radius-xl);
-            margin-bottom: 1rem;
-        }
-        .rjt-main-value {
-            font-family: var(--font-display);
-            font-size: 3rem;
-            font-weight: 900;
-            line-height: 1;
-        }
-        .rjt-main-label {
-            font-size: 0.75rem;
-            color: var(--slate-400);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-top: 0.3rem;
-        }
-        .rjt-rating {
-            display: inline-block;
-            margin-top: 0.6rem;
-            padding: 0.3rem 1rem;
-            border: 1px solid;
-            border-radius: 100px;
-            font-family: var(--font-display);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-        }
-        .rjt-stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .rjt-stat {
-            background: var(--gray-dark);
-            border-radius: var(--radius-md);
-            padding: 0.6rem;
-            text-align: center;
-        }
-        .rjt-stat-value {
-            font-family: var(--font-display);
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        .rjt-stat-label {
-            font-size: 0.6rem;
-            color: var(--slate-500);
-            text-transform: uppercase;
-        }
-        .rjt-table {
-            background: var(--gray-dark);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            margin-bottom: 1rem;
-            font-size: 0.75rem;
-        }
-        .rjt-table-header {
-            display: grid;
-            grid-template-columns: 2.5rem 1fr 1fr 1fr 1fr;
-            padding: 0.5rem 0.6rem;
-            background: var(--gray-medium);
-            color: var(--slate-400);
-            font-weight: 700;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-        }
-        .rjt-table-row {
-            display: grid;
-            grid-template-columns: 2.5rem 1fr 1fr 1fr 1fr;
-            padding: 0.4rem 0.6rem;
-            border-bottom: 1px solid rgba(59,130,246,0.06);
-            color: var(--slate-400);
-        }
-        .rjt-table-row.top5 {
-            color: var(--white);
-            background: rgba(20,184,166,0.05);
-        }
-        .rjt-table-row.top5 .rjt-rsi-val {
-            color: var(--teal);
-            font-weight: 700;
-        }
-        .rjt-table-row.excluded {
-            opacity: 0.5;
-        }
-        .rjt-save-btn {
-            width: 100%;
-            padding: 0.9rem;
-            background: var(--gradient-hero);
-            border: none;
-            border-radius: var(--radius-lg);
-            color: var(--white);
-            font-family: var(--font-display);
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(59,130,246,0.25);
-        }
-        .rjt-save-btn:active { transform: scale(0.98); }
-        .rjt-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .rjt-btn {
-            grid-column: 1 / -1;
-            border: 1px dashed rgba(20,184,166,0.4) !important;
-            padding: 0.6rem !important;
-        }
-        .rjt-btn.selected {
-            border-style: solid !important;
-            border-color: var(--teal) !important;
-            background: linear-gradient(145deg, rgba(20,184,166,0.08), rgba(59,130,246,0.05)) !important;
-        }
-        .rjt-btn .type-name { color: var(--teal); font-size: 0.85rem; }
-        .rjt-btn .type-desc { color: var(--slate-500); }
         /* iPhone-specific fixes */
         @supports (-webkit-touch-callout: none) {
             /* iOS input zoom prevention */
@@ -1838,10 +1701,6 @@
                     <button class="jump-type-btn" data-type="SL-CMJ-R">
                         <div class="type-name">SL-R</div>
                         <div class="type-desc">Singola DX</div>
-                    </button>
-                    <button class="jump-type-btn rjt-btn" data-type="10-5-RJT">
-                        <div class="type-name">10/5 RJT</div>
-                        <div class="type-desc">Repeated Jump</div>
                     </button>
                 </div>
                 <div class="jump-type-note" id="jump-type-note"></div>
@@ -2163,7 +2022,6 @@
             'ABALAKOV': { name: 'Abalakov', note: 'CMJ con slancio braccia.', markers: 2 },
             'SL-CMJ-L': { name: 'Single-Leg CMJ Sinistro', note: 'CMJ su gamba sinistra. Braccia libere.', markers: 2 },
             'SL-CMJ-R': { name: 'Single-Leg CMJ Destro', note: 'CMJ su gamba destra. Braccia libere.', markers: 2 },
-            '10-5-RJT': { name: '10/5 Repeated Jump Test', note: 'Filma a 60fps (NO slow-mo). Usa desktop o laptop per risultati accurati. Su iPhone il rilevamento automatico e impreciso (limite WebKit).', markers: 0 }
         };
 
         // ============================================
@@ -2396,7 +2254,7 @@
             const normsType = (testType === 'SL-CMJ-L' || testType === 'SL-CMJ-R') ? 'CMJ' : testType;
 
             // Skip for types without norms
-            if (normsType === 'DJ' || normsType === '10-5-RJT') {
+            if (normsType === 'DJ') {
                 container.innerHTML = '';
                 return;
             }
@@ -2831,30 +2689,9 @@
             const mb = $('mark-buttons');
             const markSection = mb.closest('.mark-section');
 
-            if (selectedJumpType === '10-5-RJT') {
-                // 10-5 RJT: no manual markers — auto-detect only
-                markSection.style.display = 'none';
-                $('calculate-btn').style.display = 'none';
-                // Show RJT-specific results container
-                if (!$('rjt-results')) {
-                    const div = document.createElement('div');
-                    div.id = 'rjt-results';
-                    div.className = 'rjt-results';
-                    markSection.parentNode.insertBefore(div, $('fps-section'));
-                }
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-                let rjtMsg = '<div style="text-align:center;padding:1rem;color:var(--slate-400);font-size:0.85rem">Carica il video e conferma FPS.<br>Il rilevamento automatico trovera tutti i salti.</div>';
-                if (isIOS) {
-                    rjtMsg += `<div style="margin:0.5rem 0;padding:0.6rem 0.8rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;font-size:0.75rem;color:#F59E0B;text-align:center;line-height:1.4">
-                        iPhone rilevato — il 10/5 RJT richiede analisi automatica di centinaia di frame. Su iOS (WebKit) la precisione del seeking video e limitata: i risultati saranno meno accurati rispetto a desktop o Android. Per dati affidabili, usa un computer.
-                    </div>`;
-                }
-                $('rjt-results').innerHTML = rjtMsg;
-                $('rjt-results').style.display = 'block';
-            } else {
+            {
                 markSection.style.display = 'block';
                 $('calculate-btn').style.display = 'block';
-                if ($('rjt-results')) $('rjt-results').style.display = 'none';
 
                 if (selectedJumpType === 'DJ') {
                     mb.classList.add('three-marks');
@@ -2884,7 +2721,6 @@
         attachMarkListeners();
 
         function checkReady() {
-            if (selectedJumpType === '10-5-RJT') return; // No manual calculate for RJT
             if (selectedJumpType === 'DJ') {
                 $('calculate-btn').disabled = !(contactFrame !== null && takeoffFrame !== null && landingFrame !== null && contactFrame < takeoffFrame && takeoffFrame < landingFrame);
             } else {
@@ -2991,27 +2827,14 @@
                 fill.style.width = '100%';
                 text.textContent = 'Rilevamento eventi...';
 
-                if (selectedJumpType === '10-5-RJT') {
-                    // Multi-peak detection for repeated jumps
-                    const jumps = detectRepeatedJumps(motionData);
-                    if (jumps && jumps.length >= 2) {
-                        showRJTResults(jumps, motionData);
-                        drawMotionChartRJT(motionData, jumps);
-                    } else {
-                        text.textContent = `Rilevati ${jumps ? jumps.length : 0} salti. Servono almeno 2. Riprova con video piu lungo.`;
-                        setTimeout(() => prog.classList.remove('visible'), 3000);
-                        return;
-                    }
+                const detected = detectEvents(motionData);
+                if (detected) {
+                    showAutoDetectResult(detected);
+                    drawMotionChart(motionData, detected);
                 } else {
-                    const detected = detectEvents(motionData);
-                    if (detected) {
-                        showAutoDetectResult(detected);
-                        drawMotionChart(motionData, detected);
-                    } else {
-                        text.textContent = 'Non rilevato. Prova manualmente.';
-                        setTimeout(() => prog.classList.remove('visible'), 2000);
-                        return;
-                    }
+                    text.textContent = 'Non rilevato. Prova manualmente.';
+                    setTimeout(() => prog.classList.remove('visible'), 2000);
+                    return;
                 }
             } catch(err) {
                 console.warn('Auto-detect error:', err);
@@ -3114,403 +2937,10 @@
         }
 
         // ============================================
-        // 10-5 REPEATED JUMP TEST — Multi-Peak Detection
+        // 10-5 RJT REMOVED — requires force plate or contact mat for reliable
+        // GCT measurement. Video pixel analysis at 60fps: ±16.7ms/frame = ~8%
+        // error on 200ms GCT. See: Stratford et al. 2020, 2021.
         // ============================================
-        function detectRepeatedJumps(data) {
-            // PEAK DETECTION for continuous bouncing.
-            //
-            // Motion signal during repeated jumps = oscillation:
-            //   HIGH at ground contacts (impact + push-off)
-            //   LOW during flight (body gliding through air)
-            //
-            // We find peaks (contacts) and valleys (flights) in the signal.
-            // The data array has one entry per frame (some interpolated from step).
-
-            // Step 1: Smooth proportional to FPS
-            // At 120fps step=8, effective sample rate ~15Hz. Window should cover ~100ms.
-            const effectiveSampleRate = videoFps / Math.max(1, Math.round(data.length / data.filter(v => v > 0).length || 1));
-            const smoothWindow = Math.max(2, Math.round(videoFps * 0.04)); // ~40ms window in frame units
-            const smoothed = data.map((v, i) => {
-                let sum = 0, cnt = 0;
-                for (let j = Math.max(0, i - smoothWindow); j <= Math.min(data.length - 1, i + smoothWindow); j++) {
-                    sum += data[j]; cnt++;
-                }
-                return sum / cnt;
-            });
-
-            // Step 2: Find active zone more robustly
-            // Use a sliding window to find the region with highest sustained activity
-            const windowSize = Math.round(videoFps * 2); // 2-second sliding window
-            let bestWindowSum = 0, bestWindowStart = 0;
-            let runSum = 0;
-            for (let i = 0; i < Math.min(windowSize, smoothed.length); i++) runSum += smoothed[i];
-            bestWindowSum = runSum;
-            for (let i = windowSize; i < smoothed.length; i++) {
-                runSum += smoothed[i] - smoothed[i - windowSize];
-                if (runSum > bestWindowSum) { bestWindowSum = runSum; bestWindowStart = i - windowSize + 1; }
-            }
-
-            // Expand from best window to find full active region
-            const windowAvg = bestWindowSum / windowSize;
-            const expandThreshold = windowAvg * 0.3; // Region is active if > 30% of peak window avg
-
-            let zoneStart = bestWindowStart;
-            let zoneEnd = Math.min(smoothed.length, bestWindowStart + windowSize);
-            // Expand left
-            while (zoneStart > 0 && smoothed[zoneStart - 1] > expandThreshold) zoneStart--;
-            // Expand right
-            while (zoneEnd < smoothed.length && smoothed[zoneEnd] > expandThreshold) zoneEnd++;
-
-            const zoneLen = zoneEnd - zoneStart;
-            console.log(`[RJT] Active zone: frames ${zoneStart}-${zoneEnd} (${zoneLen} frames, ${(zoneLen/videoFps).toFixed(1)}s), windowAvg: ${windowAvg.toFixed(2)}`);
-
-            if (zoneLen < videoFps * 0.5) return null; // Need at least 0.5s of activity
-
-            // Step 3: Find peaks with PROMINENCE filter
-            // A reactive jump cycle = 0.3-0.7s. Minimum distance between real contacts = 0.25s.
-            const minPeakDist = Math.max(5, Math.round(videoFps * 0.25));
-
-            const zoneSignal = smoothed.slice(zoneStart, zoneEnd);
-            const zoneMax = Math.max(...zoneSignal);
-            const zoneMin = Math.min(...zoneSignal.filter(v => v > 0));
-            const zoneRange = zoneMax - zoneMin;
-
-            // Phase 1: Find ALL local maxima with generous distance
-            let rawPeaks = [];
-            for (let i = 2; i < zoneSignal.length - 2; i++) {
-                const v = zoneSignal[i];
-                if (v <= 0) continue;
-                let isMax = true;
-                for (let j = Math.max(0, i - minPeakDist); j <= Math.min(zoneSignal.length - 1, i + minPeakDist); j++) {
-                    if (j !== i && zoneSignal[j] > v) { isMax = false; break; }
-                }
-                if (isMax) rawPeaks.push({ frame: zoneStart + i, val: v, zoneIdx: i });
-            }
-
-            console.log(`[RJT] Raw peaks: ${rawPeaks.length}, minPeakDist: ${minPeakDist} (${(minPeakDist/videoFps*1000).toFixed(0)}ms)`);
-
-            // Phase 2: Prominence filter — a real contact peak must have a clear valley
-            // (flight phase) on at least one side. Prominence = peak height - highest valley.
-            const peaks = [];
-            for (let p = 0; p < rawPeaks.length; p++) {
-                const peak = rawPeaks[p];
-                const idx = peak.zoneIdx;
-
-                // Find valley to the left (or zone start)
-                let leftValley = peak.val;
-                const leftBound = p > 0 ? rawPeaks[p-1].zoneIdx : 0;
-                for (let i = idx - 1; i >= leftBound; i--) {
-                    if (zoneSignal[i] < leftValley) leftValley = zoneSignal[i];
-                }
-
-                // Find valley to the right (or zone end)
-                let rightValley = peak.val;
-                const rightBound = p < rawPeaks.length - 1 ? rawPeaks[p+1].zoneIdx : zoneSignal.length - 1;
-                for (let i = idx + 1; i <= rightBound; i++) {
-                    if (zoneSignal[i] < rightValley) rightValley = zoneSignal[i];
-                }
-
-                // Prominence = how much the peak stands above the HIGHER of its two valleys
-                const higherValley = Math.max(leftValley, rightValley);
-                const prominence = peak.val - higherValley;
-                const prominenceRatio = prominence / zoneRange;
-
-                // A real ground contact should have prominence >= 15% of zone range
-                if (prominenceRatio >= 0.15) {
-                    peaks.push({ ...peak, prominence, prominenceRatio });
-                }
-            }
-
-            console.log(`[RJT] After prominence filter: ${peaks.length} peaks (from ${rawPeaks.length} raw)`);
-            if (peaks.length >= 2) {
-                const gaps = [];
-                for (let i = 1; i < peaks.length; i++) gaps.push(((peaks[i].frame - peaks[i-1].frame) / videoFps * 1000).toFixed(0));
-                console.log(`[RJT] Peak gaps (ms): ${gaps.join(', ')}`);
-                console.log(`[RJT] Peak prominences: ${peaks.map(p => (p.prominenceRatio * 100).toFixed(0) + '%').join(', ')}`);
-            }
-
-            if (peaks.length < 3) return null;
-
-            // Step 3b: Periodicity filter — merge peaks that are too close
-            // Real jump cycles are roughly periodic. Use median gap to identify
-            // and merge "double peaks" within the same ground contact.
-            function mergeClosePeaks(peakList) {
-                if (peakList.length < 3) return peakList;
-                // Calculate all gaps
-                const gaps = [];
-                for (let i = 1; i < peakList.length; i++) {
-                    gaps.push(peakList[i].frame - peakList[i-1].frame);
-                }
-                // Median gap = expected real cycle time
-                const sortedGaps = [...gaps].sort((a, b) => a - b);
-                const medianGap = sortedGaps[Math.floor(sortedGaps.length / 2)];
-                // Merge threshold: peaks closer than 50% of median cycle are "same contact"
-                const mergeThreshold = medianGap * 0.5;
-
-                console.log(`[RJT] Merge: medianGap=${(medianGap/videoFps*1000).toFixed(0)}ms, mergeThreshold=${(mergeThreshold/videoFps*1000).toFixed(0)}ms`);
-
-                const merged = [peakList[0]];
-                for (let i = 1; i < peakList.length; i++) {
-                    const prev = merged[merged.length - 1];
-                    const gap = peakList[i].frame - prev.frame;
-                    if (gap < mergeThreshold) {
-                        // Too close — keep the higher peak
-                        if (peakList[i].val > prev.val) {
-                            merged[merged.length - 1] = peakList[i];
-                        }
-                    } else {
-                        merged.push(peakList[i]);
-                    }
-                }
-                return merged;
-            }
-
-            // Run merge iteratively until stable
-            let filteredPeaks = peaks;
-            for (let iter = 0; iter < 3; iter++) {
-                const before = filteredPeaks.length;
-                filteredPeaks = mergeClosePeaks(filteredPeaks);
-                console.log(`[RJT] Merge pass ${iter+1}: ${before} → ${filteredPeaks.length} peaks`);
-                if (filteredPeaks.length === before) break;
-            }
-
-            console.log(`[RJT] Final peaks after merge: ${filteredPeaks.length}`);
-            if (filteredPeaks.length >= 2) {
-                const fGaps = [];
-                for (let i = 1; i < filteredPeaks.length; i++) fGaps.push(((filteredPeaks[i].frame - filteredPeaks[i-1].frame) / videoFps * 1000).toFixed(0));
-                console.log(`[RJT] Final gaps (ms): ${fGaps.join(', ')}`);
-            }
-
-            if (filteredPeaks.length < 3) return null;
-
-            // Step 4: Calculate jumps between consecutive FILTERED peaks
-            const jumps = [];
-
-            for (let p = 0; p < filteredPeaks.length - 1; p++) {
-                const peak1 = filteredPeaks[p];
-                const peak2 = filteredPeaks[p + 1];
-
-                // Valley = minimum between peaks
-                let valleyFrame = peak1.frame, valleyVal = Infinity;
-                for (let i = peak1.frame + 1; i < peak2.frame; i++) {
-                    if (smoothed[i] < valleyVal) { valleyVal = smoothed[i]; valleyFrame = i; }
-                }
-
-                // Peak-to-valley contrast must be meaningful
-                const contrast = Math.min(peak1.val, peak2.val) / Math.max(valleyVal, 0.01);
-                if (contrast < 1.2) continue;
-
-                // Crossing threshold: 25% from valley toward peak.
-                // This makes "contact" = the broad high-motion zone around each peak,
-                // and "flight" = the narrow low-motion zone around each valley.
-                // At 50% (midpoint): CT too short, FT too long → heights inflated.
-                // At 25%: CT realistic (200-300ms), FT correct → heights accurate.
-                const crossRatio = 0.25;
-                const cross1 = valleyVal + crossRatio * (peak1.val - valleyVal);
-                const cross2 = valleyVal + crossRatio * (peak2.val - valleyVal);
-
-                // Takeoff = descending crossing after peak1
-                let takeoff = peak1.frame;
-                for (let i = peak1.frame; i < valleyFrame; i++) {
-                    if (smoothed[i] < cross1) { takeoff = i; break; }
-                }
-
-                // Landing = ascending crossing before peak2
-                let landing = peak2.frame;
-                for (let i = valleyFrame; i < peak2.frame; i++) {
-                    if (smoothed[i] > cross2) { landing = i; break; }
-                }
-
-                const flightFrames = landing - takeoff;
-                if (flightFrames < 1) continue;
-
-                const flightTime = flightFrames / videoFps;
-                const height = (9.81 * flightTime * flightTime) / 8 * 100;
-
-                // Contact time: width of peak1 at crossing level
-                let contactStart = peak1.frame;
-                for (let i = peak1.frame; i > zoneStart; i--) {
-                    if (smoothed[i] < cross1) { contactStart = i; break; }
-                }
-                const contactFrames = Math.max(takeoff - contactStart, 1);
-                const contactTime = contactFrames / videoFps;
-
-                // Relaxed sanity for video-based measurement
-                if (height < 1 || height > 80) continue;
-                if (contactTime > 0.8 || contactTime < 0.01) continue;
-                if (flightTime > 1.0) continue;
-
-                const rsi = (height / 100) / contactTime;
-
-                jumps.push({
-                    index: jumps.length + 1,
-                    takeoffFrame: takeoff,
-                    landingFrame: landing,
-                    contactStart,
-                    flightFrames,
-                    flightTime,
-                    height,
-                    contactTime,
-                    rsi,
-                    peakVal: peak1.val,
-                    valleyVal
-                });
-            }
-
-            console.log(`[RJT] Result: ${jumps.length} valid jumps from ${filteredPeaks.length} peaks`);
-            if (jumps.length > 0) {
-                console.log('[RJT] Heights (cm):', jumps.map(j => j.height.toFixed(1)).join(', '));
-                console.log('[RJT] CTs (ms):', jumps.map(j => (j.contactTime*1000).toFixed(0)).join(', '));
-                console.log('[RJT] RSIs:', jumps.map(j => j.rsi.toFixed(2)).join(', '));
-            }
-
-            return jumps;
-        }
-
-        function showRJTResults(jumps, motionData) {
-            const container = $('rjt-results');
-            if (!container) return;
-
-            // Sort by RSI descending to find top 5
-            const ranked = [...jumps].sort((a, b) => b.rsi - a.rsi);
-            const top5 = ranked.slice(0, Math.min(5, ranked.length));
-            const top5Indices = new Set(top5.map(j => j.index));
-
-            // Aggregate stats for top 5
-            const avgRSI = top5.reduce((s, j) => s + j.rsi, 0) / top5.length;
-            const avgHeight = top5.reduce((s, j) => s + j.height, 0) / top5.length;
-            const avgCT = top5.reduce((s, j) => s + j.contactTime, 0) / top5.length;
-            const bestRSI = top5[0].rsi;
-            const bestHeight = Math.max(...top5.map(j => j.height));
-
-            // RSI rating
-            let rsiRating, rsiColor;
-            if (avgRSI >= 2.5) { rsiRating = 'ELITE'; rsiColor = '#14B8A6'; }
-            else if (avgRSI >= 2.0) { rsiRating = 'BUONO'; rsiColor = '#3B82F6'; }
-            else if (avgRSI >= 1.5) { rsiRating = 'MEDIO'; rsiColor = '#F59E0B'; }
-            else { rsiRating = 'DA MIGLIORARE'; rsiColor = '#EF4444'; }
-
-            let html = `
-                <div class="rjt-header">
-                    <div class="rjt-title">10/5 Repeated Jump Test</div>
-                    <div class="rjt-subtitle">${jumps.length} salti rilevati — top ${top5.length} selezionati</div>
-                </div>
-                <div class="rjt-main-stat">
-                    <div class="rjt-main-value" style="color:${rsiColor}">${avgRSI.toFixed(2)}</div>
-                    <div class="rjt-main-label">RSI Medio (top ${top5.length})</div>
-                    <div class="rjt-rating" style="border-color:${rsiColor};color:${rsiColor}">${rsiRating}</div>
-                </div>
-                <div class="rjt-stats-grid">
-                    <div class="rjt-stat"><div class="rjt-stat-value">${bestRSI.toFixed(2)}</div><div class="rjt-stat-label">Best RSI</div></div>
-                    <div class="rjt-stat"><div class="rjt-stat-value">${avgHeight.toFixed(1)}</div><div class="rjt-stat-label">Altezza media (cm)</div></div>
-                    <div class="rjt-stat"><div class="rjt-stat-value">${(avgCT * 1000).toFixed(0)}</div><div class="rjt-stat-label">Contact medio (ms)</div></div>
-                    <div class="rjt-stat"><div class="rjt-stat-value">${bestHeight.toFixed(1)}</div><div class="rjt-stat-label">Best altezza (cm)</div></div>
-                </div>
-                <div class="rjt-table">
-                    <div class="rjt-table-header">
-                        <span>#</span><span>Altezza</span><span>CT</span><span>FT</span><span>RSI</span>
-                    </div>`;
-
-            jumps.forEach(j => {
-                const isTop5 = top5Indices.has(j.index);
-                html += `<div class="rjt-table-row ${isTop5 ? 'top5' : 'excluded'}">
-                    <span>${j.index}${isTop5 ? ' ★' : ''}</span>
-                    <span>${j.height.toFixed(1)}cm</span>
-                    <span>${(j.contactTime * 1000).toFixed(0)}ms</span>
-                    <span>${(j.flightTime * 1000).toFixed(0)}ms</span>
-                    <span class="rjt-rsi-val">${j.rsi.toFixed(2)}</span>
-                </div>`;
-            });
-
-            html += '</div>';
-
-            // Save best to history
-            html += `<button class="rjt-save-btn" id="rjt-save-btn">Salva nel profilo (RSI ${avgRSI.toFixed(2)})</button>`;
-
-            container.innerHTML = html;
-            container.style.display = 'block';
-            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            // Save button
-            $('rjt-save-btn')?.addEventListener('click', () => {
-                const entry = {
-                    type: '10-5-RJT',
-                    height: avgHeight,
-                    rsi: avgRSI,
-                    contactTime: avgCT,
-                    bestRSI: bestRSI,
-                    bestHeight: bestHeight,
-                    jumpCount: jumps.length,
-                    top5Count: top5.length,
-                    date: new Date().toISOString()
-                };
-                jumpHistory.push(entry);
-                localStorage.setItem('airtime_history', JSON.stringify(jumpHistory));
-                loadAthleteProfile();
-                $('rjt-save-btn').disabled = true;
-                $('rjt-save-btn').textContent = 'Salvato';
-                navigator.vibrate?.([50, 50, 100]);
-            });
-
-            navigator.vibrate?.([50, 50, 100]);
-        }
-
-        function drawMotionChartRJT(data, jumps) {
-            const container = $('motion-chart');
-            container.style.display = 'block';
-            const canvas = $('motion-canvas');
-            const rect = container.getBoundingClientRect();
-            canvas.width = rect.width * 2;
-            canvas.height = rect.height * 2;
-            const ctx = canvas.getContext('2d');
-            const w = canvas.width, h = canvas.height;
-
-            ctx.clearRect(0, 0, w, h);
-
-            const max = Math.max(...data.filter(v => v > 0));
-            if (max === 0) return;
-
-            const pad = { left: 10, right: 10, top: 10, bottom: 10 };
-
-            // Draw motion signal
-            ctx.strokeStyle = 'rgba(148,163,184,0.4)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            for (let i = 0; i < data.length; i++) {
-                const x = pad.left + (w - pad.left - pad.right) * (i / data.length);
-                const y = h - pad.bottom - (h - pad.top - pad.bottom) * (data[i] / max);
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-
-            // Highlight each jump's flight phase
-            const ranked = [...jumps].sort((a, b) => b.rsi - a.rsi);
-            const top5Set = new Set(ranked.slice(0, 5).map(j => j.index));
-
-            jumps.forEach(j => {
-                const isTop5 = top5Set.has(j.index);
-                const x1 = pad.left + (w - pad.left - pad.right) * (j.takeoffFrame / data.length);
-                const x2 = pad.left + (w - pad.left - pad.right) * (j.landingFrame / data.length);
-
-                ctx.fillStyle = isTop5 ? 'rgba(20,184,166,0.15)' : 'rgba(148,163,184,0.08)';
-                ctx.fillRect(x1, pad.top, x2 - x1, h - pad.top - pad.bottom);
-
-                // Takeoff line
-                ctx.strokeStyle = isTop5 ? 'rgba(20,184,166,0.6)' : 'rgba(148,163,184,0.2)';
-                ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(x1, pad.top); ctx.lineTo(x1, h - pad.bottom); ctx.stroke();
-                // Landing line
-                ctx.beginPath(); ctx.moveTo(x2, pad.top); ctx.lineTo(x2, h - pad.bottom); ctx.stroke();
-
-                // Jump number label
-                if (isTop5) {
-                    ctx.fillStyle = '#14B8A6';
-                    ctx.font = 'bold 18px Inter, sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(j.index.toString(), (x1 + x2) / 2, pad.top + 16);
-                }
-            });
-        }
 
         function showAutoDetectResult(detected) {
             const result = $('autodetect-result');
@@ -4006,7 +3436,7 @@
             const norms = getPercentileNorms(normsType, gender, ageGroup);
             const bracket = getPercentileBracket(h, norms);
             if (bracket) return bracket.label.toUpperCase();
-            // Fallback for types without norms (DJ, 10-5-RJT)
+            // Fallback for types without norms (DJ)
             return '';
         }
 
