@@ -87,8 +87,14 @@
             display: flex;
             flex-direction: column;
             padding: 1rem;
-            max-width: 500px;
+            max-width: 520px;
             margin: 0 auto;
+        }
+        /* Desktop: wider layout for video workspace */
+        @media (min-width: 768px) {
+            .app { max-width: 680px; }
+            .video-wrapper { border-radius: var(--radius-xl); }
+            video { max-height: 45vh; }
         }
         header {
             text-align: center;
@@ -703,22 +709,31 @@
             object-fit: contain;
         }
         .scrubber-container {
-            padding: 0.8rem 1rem;
-            background: rgba(26,26,26,0.95);
-            border-radius: 0 0 12px 12px;
+            padding: 0.5rem 1rem 0.3rem;
+            background: rgba(15,23,42,0.95);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
             margin-top: -12px;
         }
         .frame-display {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 0.6rem;
+            align-items: baseline;
+            margin-bottom: 0.2rem;
         }
         .frame-info {
             font-family: var(--font-display);
             color: var(--primary);
-            font-size: 1.1rem;
+            font-size: 1rem;
+            font-weight: 700;
         }
-        .time-info { font-size: 0.85rem; color: rgba(236,245,246,0.6); }
+        .time-info {
+            font-size: 0.8rem;
+            color: var(--slate-400);
+            font-variant-numeric: tabular-nums;
+            font-family: var(--font-display);
+        }
         .scrubber {
             width: 100%;
             height: 44px;
@@ -727,42 +742,98 @@
             cursor: pointer;
         }
         .scrubber::-webkit-slider-runnable-track {
-            height: 8px;
-            background: var(--gray-dark);
-            border-radius: 4px;
+            height: 6px;
+            background: var(--gray-medium);
+            border-radius: 3px;
         }
         .scrubber::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 28px;
-            height: 28px;
+            width: 20px;
+            height: 20px;
             background: var(--primary);
             border-radius: 50%;
-            margin-top: -10px;
-            box-shadow: 0 0 15px var(--primary-glow);
+            margin-top: -7px;
+            box-shadow: 0 0 10px var(--primary-glow);
+            transition: transform 0.1s;
         }
+        .scrubber::-webkit-slider-thumb:hover { transform: scale(1.3); }
+        /* Firefox */
+        .scrubber::-moz-range-track {
+            height: 6px;
+            background: var(--gray-medium);
+            border-radius: 3px;
+            border: none;
+        }
+        .scrubber::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+        /* Video Transport Bar — single row, compact */
         .video-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
             margin-bottom: 1rem;
+            background: var(--gray-dark);
+            border: 1px solid rgba(59,130,246,0.15);
+            border-radius: var(--radius-lg);
+            padding: 0.3rem;
+            overflow: hidden;
         }
         .ctrl-btn {
-            background: var(--gray-dark);
-            border: 1px solid rgba(59,130,246,0.3);
-            border-radius: 10px;
-            color: var(--white);
-            padding: 0.9rem 0.5rem;
-            font-size: 0.85rem;
+            background: transparent;
+            border: none;
+            color: var(--slate-400);
+            padding: 0.65rem 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
-            flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 0.3rem;
+            border-radius: var(--radius-md);
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+            font-family: var(--font-display);
         }
-        .ctrl-btn:active { transform: scale(0.95); background: var(--primary-dim); }
-        .ctrl-btn .icon { font-size: 1.3rem; }
-        .ctrl-btn.small { padding: 0.4rem 0.6rem; min-width: auto; font-size: 0.8rem; background: var(--gray-dark); }
+        .ctrl-btn:hover { background: rgba(59,130,246,0.1); color: var(--white); }
+        .ctrl-btn:active { background: rgba(59,130,246,0.2); color: var(--white); transform: scale(0.96); }
+        .ctrl-btn .icon { font-size: 1rem; }
+        /* Play button — accent */
+        .ctrl-btn.play-btn {
+            background: rgba(59,130,246,0.12);
+            color: var(--primary);
+            padding: 0.65rem 1.2rem;
+        }
+        .ctrl-btn.play-btn:hover { background: rgba(59,130,246,0.2); }
+        /* Divider */
+        .ctrl-divider {
+            width: 1px;
+            height: 24px;
+            background: rgba(148,163,184,0.15);
+            margin: 0 0.15rem;
+            flex-shrink: 0;
+        }
+        /* Keyboard hint on desktop */
+        .ctrl-key {
+            display: none;
+            font-size: 0.55rem;
+            color: var(--slate-500);
+            border: 1px solid rgba(148,163,184,0.2);
+            border-radius: 3px;
+            padding: 0.05rem 0.3rem;
+            margin-left: 0.3rem;
+            font-family: monospace;
+        }
+        @media (min-width: 640px) and (hover: hover) {
+            .ctrl-key { display: inline; }
+        }
         /* FPS Confirm */
         .fps-confirm-banner {
             display: none;
@@ -788,11 +859,11 @@
         .fps-confirm-btn.confirm { background: var(--primary); border: none; color: var(--black); }
         .fps-confirm-btn.change { background: transparent; border: 1px solid rgba(236,245,246,0.3); color: rgba(236,245,246,0.8); }
         /* Mark Buttons */
-        .mark-section { margin-bottom: 1rem; }
+        .mark-section { margin-bottom: 0.8rem; }
         .mark-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.8rem;
+            gap: 0.5rem;
         }
         .mark-buttons.three-marks {
             grid-template-columns: 1fr 1fr 1fr;
@@ -800,28 +871,38 @@
         }
         .mark-btn {
             background: var(--gray-dark);
-            border: 1px solid rgba(59,130,246,0.2);
+            border: 1px solid rgba(59,130,246,0.12);
             border-radius: var(--radius-lg);
-            padding: 1rem;
+            padding: 0.7rem 0.5rem;
             cursor: pointer;
             text-align: center;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .mark-buttons.three-marks .mark-btn { padding: 0.7rem 0.5rem; }
+        .mark-btn:hover { border-color: rgba(59,130,246,0.3); }
         .mark-btn:active { transform: scale(0.97); }
         .mark-btn .label {
             display: block;
-            font-size: 0.75rem;
-            color: rgba(236,245,246,0.6);
-            margin-bottom: 0.3rem;
+            font-size: 0.65rem;
+            color: var(--slate-400);
+            margin-bottom: 0.15rem;
             text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
         }
-        .mark-buttons.three-marks .mark-btn .label { font-size: 0.65rem; }
         .mark-btn .frame-val {
             font-family: var(--font-display);
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             color: var(--primary);
+            font-weight: 700;
         }
-        .mark-buttons.three-marks .mark-btn .frame-val { font-size: 1.1rem; }
+        .mark-buttons.three-marks .mark-btn .frame-val { font-size: 1rem; }
+        .mark-btn .mark-undo {
+            display: none;
+            font-size: 0.55rem;
+            color: var(--slate-500);
+            margin-top: 0.15rem;
+        }
+        .mark-btn.marked .mark-undo { display: block; }
         .mark-btn.cmstart-btn.marked { border-color: #F1C40F; box-shadow: 0 0 20px rgba(241,196,15,0.3); }
         .mark-btn.cmstart-btn.marked .frame-val { color: #F1C40F; }
         .mark-btn.contact-btn.marked { border-color: #9B59B6; box-shadow: 0 0 20px rgba(155,89,182,0.3); }
@@ -1052,29 +1133,131 @@
         .upsell-section {
             margin-top: 1.2rem;
             padding-top: 1.2rem;
-            border-top: 1px solid rgba(59,130,246,0.2);
+            border-top: 1px solid rgba(59,130,246,0.15);
         }
-        .upsell-title {
-            font-size: 0.75rem;
-            color: rgba(236,245,246,0.5);
-            text-transform: uppercase;
-            margin-bottom: 0.8rem;
+        .upsell-hook {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.3rem;
+            line-height: 1.3;
         }
-        .upsell-cards { display: grid; gap: 0.8rem; }
-        .upsell-card {
+        .upsell-subhook {
+            font-size: 0.8rem;
+            color: var(--slate-400);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        .upsell-primary-cta {
             display: block;
-            background: var(--gray-dark);
-            border: 1px solid rgba(59,130,246,0.3);
-            border-radius: 10px;
+            text-align: center;
             padding: 1rem;
+            background: var(--gradient-hero);
+            border-radius: var(--radius-lg);
+            color: var(--white);
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.95rem;
             text-decoration: none;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25);
+            transition: transform 0.15s, box-shadow 0.15s;
+            margin-bottom: 0.5rem;
         }
-        .upsell-card:active { transform: scale(0.98); border-color: var(--primary); }
-        .upsell-card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
-        .upsell-icon { font-size: 1.5rem; }
-        .upsell-card-title { font-family: var(--font-display); color: var(--primary); font-size: 0.95rem; font-weight: 700; }
-        .upsell-card-desc { font-size: 0.8rem; color: rgba(236,245,246,0.7); line-height: 1.4; }
-        .upsell-card-cta { display: inline-block; margin-top: 0.6rem; font-size: 0.75rem; color: var(--primary); font-weight: 600; }
+        .upsell-primary-cta:active { transform: scale(0.98); }
+        .upsell-primary-sub {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--slate-500);
+            margin-bottom: 1rem;
+        }
+        .upsell-secondary-cta {
+            display: block;
+            text-align: center;
+            padding: 0.8rem;
+            background: transparent;
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: var(--radius-md);
+            color: var(--slate-400);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .upsell-secondary-cta:active { border-color: var(--primary); color: var(--primary); }
+        /* Onboarding */
+        .onboarding-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.85);
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            padding: 2rem;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .onboarding-overlay.visible { display: flex; align-items: center; justify-content: center; }
+        .onboarding-card {
+            background: var(--gray-dark);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: var(--radius-xl);
+            padding: 2rem 1.5rem;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+        }
+        .onboarding-step-indicator {
+            display: flex;
+            gap: 0.4rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .onboarding-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--gray-medium);
+            transition: background 0.2s;
+        }
+        .onboarding-dot.active { background: var(--primary); }
+        .onboarding-dot.done { background: var(--teal); }
+        .onboarding-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .onboarding-title {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+        .onboarding-desc {
+            font-size: 0.85rem;
+            color: var(--slate-400);
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+        .onboarding-next {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--gradient-hero);
+            border: none;
+            border-radius: var(--radius-md);
+            color: var(--white);
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .onboarding-next:active { transform: scale(0.98); }
+        .onboarding-skip {
+            display: block;
+            margin-top: 0.8rem;
+            background: none;
+            border: none;
+            color: var(--slate-500);
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
         /* Benchmarks */
         .benchmarks-section {
             margin-top: 1rem;
@@ -1183,22 +1366,23 @@
         /* Auto-detect */
         .autodetect-btn {
             width: 100%;
-            padding: 0.9rem;
-            background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.08));
-            border: 1px solid var(--primary);
-            border-radius: 10px;
-            color: var(--primary);
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 700;
+            padding: 0.75rem;
+            background: transparent;
+            border: 1px dashed rgba(20,184,166,0.4);
+            border-radius: var(--radius-md);
+            color: var(--teal);
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.6rem;
             display: none;
-            text-transform: uppercase;
-            letter-spacing: 0.05rem;
+            letter-spacing: 0.03em;
+            transition: background 0.15s, border-color 0.15s;
         }
         .autodetect-btn.visible { display: block; }
-        .autodetect-btn:active { transform: scale(0.98); background: rgba(59,130,246,0.25); }
+        .autodetect-btn:hover { background: rgba(20,184,166,0.08); border-color: var(--teal); }
+        .autodetect-btn:active { transform: scale(0.98); background: rgba(20,184,166,0.12); }
         .autodetect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .autodetect-progress {
             display: none;
@@ -1290,6 +1474,143 @@
         .motion-chart-marker.contact { background: #9B59B6; }
         /* Canvas for frame analysis (hidden) */
         #detect-canvas { display: none; }
+        /* 10-5 RJT Results */
+        .rjt-results {
+            display: none;
+            margin-bottom: 1rem;
+        }
+        .rjt-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .rjt-title {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+        .rjt-subtitle {
+            font-size: 0.75rem;
+            color: var(--slate-400);
+            margin-top: 0.2rem;
+        }
+        .rjt-main-stat {
+            text-align: center;
+            padding: 1.2rem;
+            background: linear-gradient(145deg, rgba(20,184,166,0.08), rgba(59,130,246,0.05));
+            border: 1px solid rgba(20,184,166,0.25);
+            border-radius: var(--radius-xl);
+            margin-bottom: 1rem;
+        }
+        .rjt-main-value {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .rjt-main-label {
+            font-size: 0.75rem;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.3rem;
+        }
+        .rjt-rating {
+            display: inline-block;
+            margin-top: 0.6rem;
+            padding: 0.3rem 1rem;
+            border: 1px solid;
+            border-radius: 100px;
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+        .rjt-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .rjt-stat {
+            background: var(--gray-dark);
+            border-radius: var(--radius-md);
+            padding: 0.6rem;
+            text-align: center;
+        }
+        .rjt-stat-value {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .rjt-stat-label {
+            font-size: 0.6rem;
+            color: var(--slate-500);
+            text-transform: uppercase;
+        }
+        .rjt-table {
+            background: var(--gray-dark);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 1rem;
+            font-size: 0.75rem;
+        }
+        .rjt-table-header {
+            display: grid;
+            grid-template-columns: 2.5rem 1fr 1fr 1fr 1fr;
+            padding: 0.5rem 0.6rem;
+            background: var(--gray-medium);
+            color: var(--slate-400);
+            font-weight: 700;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+        }
+        .rjt-table-row {
+            display: grid;
+            grid-template-columns: 2.5rem 1fr 1fr 1fr 1fr;
+            padding: 0.4rem 0.6rem;
+            border-bottom: 1px solid rgba(59,130,246,0.06);
+            color: var(--slate-400);
+        }
+        .rjt-table-row.top5 {
+            color: var(--white);
+            background: rgba(20,184,166,0.05);
+        }
+        .rjt-table-row.top5 .rjt-rsi-val {
+            color: var(--teal);
+            font-weight: 700;
+        }
+        .rjt-table-row.excluded {
+            opacity: 0.5;
+        }
+        .rjt-save-btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--gradient-hero);
+            border: none;
+            border-radius: var(--radius-lg);
+            color: var(--white);
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(59,130,246,0.25);
+        }
+        .rjt-save-btn:active { transform: scale(0.98); }
+        .rjt-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .rjt-btn {
+            grid-column: 1 / -1;
+            border: 1px dashed rgba(20,184,166,0.4) !important;
+            padding: 0.6rem !important;
+        }
+        .rjt-btn.selected {
+            border-style: solid !important;
+            border-color: var(--teal) !important;
+            background: linear-gradient(145deg, rgba(20,184,166,0.08), rgba(59,130,246,0.05)) !important;
+        }
+        .rjt-btn .type-name { color: var(--teal); font-size: 0.85rem; }
+        .rjt-btn .type-desc { color: var(--slate-500); }
         /* iPhone-specific fixes */
         @supports (-webkit-touch-callout: none) {
             /* iOS input zoom prevention */
@@ -1491,6 +1812,10 @@
                         <div class="type-name">SL-R</div>
                         <div class="type-desc">Singola DX</div>
                     </button>
+                    <button class="jump-type-btn rjt-btn" data-type="10-5-RJT">
+                        <div class="type-name">10/5 RJT</div>
+                        <div class="type-desc">Repeated Jump</div>
+                    </button>
                 </div>
                 <div class="jump-type-note" id="jump-type-note"></div>
                 <!-- DJ Box Height -->
@@ -1531,14 +1856,21 @@
                     <input type="range" class="scrubber" id="scrubber" min="0" max="100" value="0">
                 </div>
                 <div class="video-controls">
-                    <button class="ctrl-btn small" id="prev-5-frame"><span>-5</span></button>
-                    <button class="ctrl-btn" id="prev-frame"><span class="icon">◀◀</span><span>-1</span></button>
-                    <button class="ctrl-btn" id="play-pause"><span class="icon" id="play-icon">▶</span><span id="play-text">Play</span></button>
-                    <button class="ctrl-btn" id="next-frame"><span class="icon">▶▶</span><span>+1</span></button>
-                    <button class="ctrl-btn small" id="next-5-frame"><span>+5</span></button>
+                    <button class="ctrl-btn" id="prev-5-frame"><span class="icon">⏪</span> 5 <span class="ctrl-key">↓</span></button>
+                    <div class="ctrl-divider"></div>
+                    <button class="ctrl-btn" id="prev-frame"><span class="icon">◀</span> 1 <span class="ctrl-key">←</span></button>
+                    <div class="ctrl-divider"></div>
+                    <button class="ctrl-btn play-btn" id="play-pause"><span class="icon" id="play-icon">▶</span><span id="play-text">Play</span><span class="ctrl-key">spazio</span></button>
+                    <div class="ctrl-divider"></div>
+                    <button class="ctrl-btn" id="next-frame">1 <span class="icon">▶</span><span class="ctrl-key">→</span></button>
+                    <div class="ctrl-divider"></div>
+                    <button class="ctrl-btn" id="next-5-frame">5 <span class="icon">⏩</span><span class="ctrl-key">↑</span></button>
                 </div>
                 <div class="fps-confirm-banner" id="fps-confirm-banner">
                     <div class="fps-confirm-text">FPS rilevato: <strong id="fps-detected-value">30</strong></div>
+                    <div class="fps-slowmo-warning" id="fps-slowmo-warning" style="display:none; margin-bottom:0.6rem; padding:0.5rem 0.7rem; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:6px; font-size:0.75rem; color:#F59E0B; line-height:1.4;">
+                        Video lungo rilevato — potrebbe essere slow-motion. Se hai filmato in slow-mo, seleziona <strong>120</strong> o <strong>240 FPS</strong> manualmente.
+                    </div>
                     <div class="fps-confirm-buttons">
                         <button class="fps-confirm-btn confirm" id="fps-confirm-yes">Conferma</button>
                         <button class="fps-confirm-btn change" id="fps-confirm-no">Cambia</button>
@@ -1564,12 +1896,14 @@
                 <div class="mark-section">
                     <div class="mark-buttons" id="mark-buttons">
                         <button class="mark-btn takeoff-btn" id="mark-takeoff">
-                            <span class="label">Takeoff</span>
+                            <span class="label">Takeoff <span class="ctrl-key">T</span></span>
                             <span class="frame-val" id="takeoff-frame">--</span>
+                                                        <span class="mark-undo">annulla</span>
                         </button>
                         <button class="mark-btn landing-btn" id="mark-landing">
-                            <span class="label">Landing</span>
+                            <span class="label">Landing <span class="ctrl-key">L</span></span>
                             <span class="frame-val" id="landing-frame">--</span>
+                                                        <span class="mark-undo">annulla</span>
                         </button>
                     </div>
                 </div>
@@ -1600,32 +1934,12 @@
                     <div id="asymmetry-result"></div>
                     <!-- Bosco Indices -->
                     <div class="bosco-indices" id="bosco-indices" style="display:none">
-                        <div class="bosco-title">Indici Bosco Calcolati</div>
+                        <div class="bosco-title">Analisi Prestazione</div>
                         <div class="bosco-grid" id="bosco-grid"></div>
                     </div>
                     <button class="share-btn" id="share-btn">Condividi</button>
-                    <!-- Upsell -->
-                    <div class="upsell-section" id="upsell-section">
-                        <div class="upsell-title" id="upsell-title">Migliora il Tuo Salto</div>
-                        <div class="upsell-cards">
-                            <a href="https://www.nicholasrubini.it/prodotto/defy-gravity/" target="_blank" class="upsell-card">
-                                <div class="upsell-card-header">
-                                    <span class="upsell-icon">🚀</span>
-                                    <span class="upsell-card-title">Defy Gravity</span>
-                                </div>
-                                <div class="upsell-card-desc">Programma per aumentare il salto verticale</div>
-                                <span class="upsell-card-cta">Scopri ></span>
-                            </a>
-                            <a href="https://www.nicholasrubini.it/prodotto/allenare-la-forza-esplosiva/" target="_blank" class="upsell-card">
-                                <div class="upsell-card-header">
-                                    <span class="upsell-icon">🎓</span>
-                                    <span class="upsell-card-title">Forza Esplosiva</span>
-                                </div>
-                                <div class="upsell-card-desc">Video corso sulla scienza dell'esplosivita</div>
-                                <span class="upsell-card-cta">Vai al corso ></span>
-                            </a>
-                        </div>
-                    </div>
+                    <!-- Upsell — populated dynamically by updateUpsell() -->
+                    <div class="upsell-section" id="upsell-section"></div>
                     <!-- Force-Power Profile -->
                     <div class="fp-profile" id="fp-profile" style="display:none">
                         <div class="fp-title">Profilo Forza-Potenza</div>
@@ -1648,7 +1962,7 @@
                             <div class="fp-quadrant-name" id="fp-quadrant-name">--</div>
                             <div class="fp-deficit" id="fp-deficit" style="display:none"></div>
                             <div class="fp-quadrant-desc" id="fp-quadrant-desc"></div>
-                            <a href="https://www.preparazioneatletica.com/" target="_blank" class="fp-cta">Scopri Performance A.I.</a>
+                            <a id="fp-cta-link" href="#" target="_blank" class="fp-cta"></a>
                         </div>
                     </div>
                     <div class="benchmarks-section" id="benchmarks-section">
@@ -1667,6 +1981,17 @@
             <div class="footer-brand">NICHOLAS RUBINI</div>
             <div class="footer-sub">nicholasrubini.it</div>
         </footer>
+    </div>
+    <!-- Onboarding -->
+    <div class="onboarding-overlay" id="onboarding-overlay">
+        <div class="onboarding-card">
+            <div class="onboarding-step-indicator" id="onboarding-dots"></div>
+            <div class="onboarding-icon" id="onboarding-icon"></div>
+            <div class="onboarding-title" id="onboarding-title"></div>
+            <div class="onboarding-desc" id="onboarding-desc"></div>
+            <button class="onboarding-next" id="onboarding-next"></button>
+            <button class="onboarding-skip" id="onboarding-skip">Salta introduzione</button>
+        </div>
     </div>
     <canvas id="share-canvas" width="1080" height="1920"></canvas>
     <div class="install-prompt" id="install-prompt">
@@ -1731,7 +2056,8 @@
             'DJ': { name: 'Drop Jump', note: 'Caduta da box + salto reattivo. Marca: Contact > Takeoff > Landing.', markers: 3 },
             'ABALAKOV': { name: 'Abalakov', note: 'CMJ con slancio braccia.', markers: 2 },
             'SL-CMJ-L': { name: 'Single-Leg CMJ Sinistro', note: 'CMJ su gamba sinistra. Braccia libere.', markers: 2 },
-            'SL-CMJ-R': { name: 'Single-Leg CMJ Destro', note: 'CMJ su gamba destra. Braccia libere.', markers: 2 }
+            'SL-CMJ-R': { name: 'Single-Leg CMJ Destro', note: 'CMJ su gamba destra. Braccia libere.', markers: 2 },
+            '10-5-RJT': { name: '10/5 Repeated Jump Test', note: 'Filma a 60fps (NO slow-mo). 10 salti reattivi consecutivi, i 5 migliori RSI vengono selezionati automaticamente.', markers: 0 }
         };
 
         // ============================================
@@ -1743,22 +2069,28 @@
         let landingFrame = null;
         let contactFrame = null;
         let selectedJumpType = 'CMJ';
-        let lastResult = { cm: 0, flightTime: 0, contactTime: null, rsi: null, stiffness: null, power: null };
+        let lastResult = { cm: 0, flightTime: 0, contactTime: null, rsi: null, power: null };
 
         // Session attempts (multi-attempt)
-        let sessionAttempts = []; // [{cm, flightTime, power, rsi, contactTime, stiffness}]
+        let sessionAttempts = []; // [{cm, flightTime, power, rsi, contactTime}]
         let sessionType = 'CMJ';
 
+        // Safe JSON parse — corrupted localStorage won't crash the app
+        function safeParse(key, fallback) {
+            try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+            catch(e) { console.warn('Corrupted localStorage key:', key, e); localStorage.removeItem(key); return fallback; }
+        }
         // Load stored data
-        let athleteData = JSON.parse(localStorage.getItem('airtime_athlete') || '{}');
-        // NEW: full history as array of timestamped entries
-        let jumpHistory = JSON.parse(localStorage.getItem('airtime_history_v2') || '[]');
+        let athleteData = safeParse('airtime_athlete', {});
+        // Full history as array of timestamped entries
+        let jumpHistory = safeParse('airtime_history_v2', []);
         // Migrate from old format if needed
         (function migrateOldHistory() {
             const old = localStorage.getItem('hopp_history');
             const oldAthlete = localStorage.getItem('hopp_athlete');
             if (old && jumpHistory.length === 0) {
-                const parsed = JSON.parse(old);
+                const parsed = safeParse('hopp_history', null);
+                if (!parsed) return;
                 // Convert old format to new
                 Object.entries(parsed).forEach(([type, val]) => {
                     const h = typeof val === 'object' ? val.height : val;
@@ -1766,14 +2098,14 @@
                     if (val && typeof val === 'object') {
                         if (val.rsi) entry.rsi = val.rsi;
                         if (val.contactTime) entry.contactTime = val.contactTime;
-                        if (val.stiffness) entry.stiffness = val.stiffness;
+                        // stiffness removed — Dalleau formula not valid for single DJ
                     }
                     jumpHistory.push(entry);
                 });
                 localStorage.setItem('airtime_history_v2', JSON.stringify(jumpHistory));
             }
             if (oldAthlete && !athleteData.weight) {
-                athleteData = JSON.parse(oldAthlete);
+                athleteData = safeParse('hopp_athlete', {});
                 localStorage.setItem('airtime_athlete', JSON.stringify(athleteData));
             }
         })();
@@ -1786,13 +2118,105 @@
         // ============================================
         // INIT
         // ============================================
+        // ============================================
+        // ONBOARDING
+        // ============================================
+        const ONBOARDING_STEPS = [
+            { icon: '⏱', title: 'Misura il tuo salto verticale', desc: 'Carica un video del tuo salto e AIRTIME calcolera altezza, potenza e indici di prestazione dalla durata del volo.', btn: 'Come funziona?' },
+            { icon: '📹', title: 'Riprendi il salto', desc: 'Filma di lato, piedi ben visibili. Usa slow-motion (120-240 FPS) per la massima precisione. Video originale, non da WhatsApp.', btn: 'Poi?' },
+            { icon: '🎯', title: 'Marca takeoff e landing', desc: 'Scorri frame per frame e segna il momento del distacco e dell\'atterraggio. Puoi anche usare il rilevamento automatico.', btn: 'Inizia' }
+        ];
+        let onboardingStep = 0;
+
+        function showOnboarding() {
+            if (localStorage.getItem('airtime_onboarded')) return;
+            onboardingStep = 0;
+            renderOnboardingStep();
+            $('onboarding-overlay').classList.add('visible');
+        }
+
+        function renderOnboardingStep() {
+            const s = ONBOARDING_STEPS[onboardingStep];
+            const total = ONBOARDING_STEPS.length;
+            $('onboarding-dots').innerHTML = Array.from({length: total}, (_, i) =>
+                `<div class="onboarding-dot ${i < onboardingStep ? 'done' : i === onboardingStep ? 'active' : ''}"></div>`
+            ).join('');
+            $('onboarding-icon').textContent = s.icon;
+            $('onboarding-title').textContent = s.title;
+            $('onboarding-desc').textContent = s.desc;
+            $('onboarding-next').textContent = s.btn;
+        }
+
+        $('onboarding-next').addEventListener('click', () => {
+            onboardingStep++;
+            if (onboardingStep >= ONBOARDING_STEPS.length) {
+                closeOnboarding();
+            } else {
+                renderOnboardingStep();
+            }
+        });
+
+        $('onboarding-skip').addEventListener('click', closeOnboarding);
+
+        function closeOnboarding() {
+            $('onboarding-overlay').classList.remove('visible');
+            localStorage.setItem('airtime_onboarded', '1');
+        }
+
+        // ============================================
+        // CONTEXTUAL UPSELL (CRO)
+        // ============================================
+        function updateUpsell(heightCm) {
+            const el = $('upsell-section');
+            const utm = 'utm_source=airtime&utm_medium=webapp&utm_campaign=jump_tool';
+            let hook, sub, primaryUrl, primaryLabel, primarySub, secondaryUrl, secondaryLabel;
+
+            if (heightCm < 35) {
+                hook = 'Il primo obiettivo realistico? +5cm in 8 settimane.';
+                sub = 'Non serve genetica. Serve un programma strutturato che sviluppi forza e coordinazione esplosiva in parallelo.';
+                primaryUrl = `https://www.nicholasrubini.it/prodotto/defy-gravity/?${utm}&utm_content=cta_under35`;
+                primaryLabel = 'Programma Defy Gravity';
+                primarySub = 'Programma salto verticale — 12 settimane, 3 sessioni/sett.';
+                secondaryUrl = `https://www.nicholasrubini.it/prodotto/allenare-la-forza-esplosiva/?${utm}&utm_content=cta2_under35`;
+                secondaryLabel = 'Oppure: impara la scienza → Forza Esplosiva (corso)';
+            } else if (heightCm < 50) {
+                hook = 'Hai una base. Ora serve trasferirla in altezza.';
+                sub = 'Tra 40 e 50cm il margine piu grande arriva da pliometria progressiva e forza reattiva, non da piu squat.';
+                primaryUrl = `https://www.nicholasrubini.it/prodotto/defy-gravity/?${utm}&utm_content=cta_40_50`;
+                primaryLabel = 'Sblocca i prossimi 5cm → Defy Gravity';
+                primarySub = '12 settimane — pliometria, balistico, strength';
+                secondaryUrl = `https://www.nicholasrubini.it/prodotto/allenare-la-forza-esplosiva/?${utm}&utm_content=cta2_40_50`;
+                secondaryLabel = 'Vuoi capire la scienza? → Corso Forza Esplosiva';
+            } else {
+                hook = 'Sopra i 50cm ogni centimetro conta di piu.';
+                sub = 'A questo livello servono periodizzazione, velocita concentrica e gestione della fatica. Non basta allenarsi duro.';
+                primaryUrl = `https://www.nicholasrubini.it/prodotto/allenare-la-forza-esplosiva/?${utm}&utm_content=cta_over50`;
+                primaryLabel = 'Padroneggia la scienza → Forza Esplosiva';
+                primarySub = 'Video corso — RFD, SSC, periodizzazione esplosiva';
+                secondaryUrl = `https://www.nicholasrubini.it/prodotto/defy-gravity/?${utm}&utm_content=cta2_over50`;
+                secondaryLabel = 'Programma strutturato → Defy Gravity';
+            }
+
+            el.innerHTML = `
+                <div class="upsell-hook">${hook}</div>
+                <div class="upsell-subhook">${sub}</div>
+                <a href="${primaryUrl}" target="_blank" class="upsell-primary-cta">${primaryLabel}</a>
+                <div class="upsell-primary-sub">${primarySub}</div>
+                <a href="${secondaryUrl}" target="_blank" class="upsell-secondary-cta">${secondaryLabel}</a>
+            `;
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
         function init() {
-            generateBenchmarkList();
+            // Restore inputs BEFORE generating benchmarks (gender-dependent)
             if (athleteData.weight) $('weight-input').value = athleteData.weight;
             if (athleteData.squat1rm) $('squat-input').value = athleteData.squat1rm;
             if (athleteData.name) $('name-input').value = athleteData.name;
             if (athleteData.gender) $('gender-select').value = athleteData.gender;
             if (athleteData.ageGroup) $('age-select').value = athleteData.ageGroup;
+            generateBenchmarkList();
             updateSavedForcePowerProfile();
             loadAthleteProfile();
             // Service Worker
@@ -1803,6 +2227,8 @@
             if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.navigator.standalone && !localStorage.getItem('airtime-dismissed')) {
                 setTimeout(() => $('install-prompt').classList.add('visible'), 3000);
             }
+            // Onboarding for first-time users
+            showOnboarding();
         }
 
         function generateBenchmarkList() {
@@ -2141,20 +2567,21 @@
         }
 
         $('session-save-btn').addEventListener('click', () => {
-            if (sessionAttempts.length === 0) return;
+            const btn = $('session-save-btn');
+            if (sessionAttempts.length === 0 || btn.disabled) return;
+            btn.disabled = true; // Prevent duplicate saves
+
             const best = sessionAttempts.reduce((b, a) => a.cm > b.cm ? a : b);
             const extraData = {};
             if (best.rsi) extraData.rsi = best.rsi;
             if (best.contactTime) extraData.contactTime = best.contactTime;
-            if (best.stiffness) extraData.stiffness = best.stiffness;
             if (best.power) extraData.power = best.power;
             if (best.boxHeight) extraData.boxHeight = best.boxHeight;
 
             saveToHistory(sessionType, best.cm, extraData);
 
-            // Show confirmation
-            $('session-save-btn').textContent = 'Salvato!';
-            setTimeout(() => { $('session-save-btn').textContent = 'Salva Best nello Storico'; }, 1500);
+            btn.textContent = 'Salvato!';
+            setTimeout(() => { btn.textContent = 'Salva Best nello Storico'; btn.disabled = false; }, 2000);
         });
 
         // ============================================
@@ -2169,7 +2596,8 @@
             if (!weight || !squat || !cmjH) return;
 
             const relStr = squat / weight;
-            const power = Math.round(60.7 * cmjH + 45.3 * weight - 2055);
+            // Sayers CMJ equation: P = 51.9 × h + 48.9 × BW − 2007
+            const power = Math.round(51.9 * cmjH + 48.9 * weight - 2007);
             const isStrong = relStr >= 1.5;
             const isExplosive = cmjH >= 45;
 
@@ -2202,60 +2630,94 @@
             });
         });
 
+        function markFrame(type) {
+            const btn = $('mark-' + type);
+            const frameEl = $(type + '-frame');
+            if (!btn) return;
+
+            // Toggle: if already marked at same frame, undo
+            const currentVal = type === 'contact' ? contactFrame : type === 'takeoff' ? takeoffFrame : landingFrame;
+            if (currentVal !== null) {
+                // Undo
+                if (type === 'contact') contactFrame = null;
+                else if (type === 'takeoff') takeoffFrame = null;
+                else landingFrame = null;
+                frameEl.textContent = '--';
+                btn.classList.remove('marked');
+                checkReady();
+                navigator.vibrate?.(30);
+                return;
+            }
+
+            // Set marker
+            const frame = getCurrentFrame();
+            if (type === 'contact') contactFrame = frame;
+            else if (type === 'takeoff') takeoffFrame = frame;
+            else landingFrame = frame;
+
+            frameEl.textContent = frame;
+            btn.classList.add('marked');
+            checkReady();
+            navigator.vibrate?.(50);
+        }
+
         function updateJumpTypeUI() {
             const info = jumpTypeInfo[selectedJumpType];
             $('jump-type-note').textContent = info.note;
             $('jump-type-note').classList.add('visible');
 
-            // DJ box height
             $('dj-box-section').classList.toggle('visible', selectedJumpType === 'DJ');
 
             const mb = $('mark-buttons');
-            if (selectedJumpType === 'DJ') {
-                mb.classList.add('three-marks');
-                mb.innerHTML = `
-                    <button class="mark-btn contact-btn" id="mark-contact"><span class="label">Contact</span><span class="frame-val" id="contact-frame">--</span></button>
-                    <button class="mark-btn takeoff-btn" id="mark-takeoff"><span class="label">Takeoff</span><span class="frame-val" id="takeoff-frame">--</span></button>
-                    <button class="mark-btn landing-btn" id="mark-landing"><span class="label">Landing</span><span class="frame-val" id="landing-frame">--</span></button>
-                `;
+            const markSection = mb.closest('.mark-section');
+
+            if (selectedJumpType === '10-5-RJT') {
+                // 10-5 RJT: no manual markers — auto-detect only
+                markSection.style.display = 'none';
+                $('calculate-btn').style.display = 'none';
+                // Show RJT-specific results container
+                if (!$('rjt-results')) {
+                    const div = document.createElement('div');
+                    div.id = 'rjt-results';
+                    div.className = 'rjt-results';
+                    markSection.parentNode.insertBefore(div, $('fps-section'));
+                }
+                $('rjt-results').innerHTML = '<div style="text-align:center;padding:1rem;color:var(--slate-400);font-size:0.85rem">Carica il video e conferma FPS.<br>Il rilevamento automatico trovera tutti i salti.</div>';
+                $('rjt-results').style.display = 'block';
             } else {
-                mb.classList.remove('three-marks');
-                mb.innerHTML = `
-                    <button class="mark-btn takeoff-btn" id="mark-takeoff"><span class="label">Takeoff</span><span class="frame-val" id="takeoff-frame">--</span></button>
-                    <button class="mark-btn landing-btn" id="mark-landing"><span class="label">Landing</span><span class="frame-val" id="landing-frame">--</span></button>
-                `;
+                markSection.style.display = 'block';
+                $('calculate-btn').style.display = 'block';
+                if ($('rjt-results')) $('rjt-results').style.display = 'none';
+
+                if (selectedJumpType === 'DJ') {
+                    mb.classList.add('three-marks');
+                    mb.innerHTML = `
+                        <button class="mark-btn contact-btn" id="mark-contact"><span class="label">Contact <span class="ctrl-key">C</span></span><span class="frame-val" id="contact-frame">--</span><span class="mark-undo">annulla</span></button>
+                        <button class="mark-btn takeoff-btn" id="mark-takeoff"><span class="label">Takeoff <span class="ctrl-key">T</span></span><span class="frame-val" id="takeoff-frame">--</span><span class="mark-undo">annulla</span></button>
+                        <button class="mark-btn landing-btn" id="mark-landing"><span class="label">Landing <span class="ctrl-key">L</span></span><span class="frame-val" id="landing-frame">--</span><span class="mark-undo">annulla</span></button>
+                    `;
+                } else {
+                    mb.classList.remove('three-marks');
+                    mb.innerHTML = `
+                        <button class="mark-btn takeoff-btn" id="mark-takeoff"><span class="label">Takeoff <span class="ctrl-key">T</span></span><span class="frame-val" id="takeoff-frame">--</span><span class="mark-undo">annulla</span></button>
+                        <button class="mark-btn landing-btn" id="mark-landing"><span class="label">Landing <span class="ctrl-key">L</span></span><span class="frame-val" id="landing-frame">--</span><span class="mark-undo">annulla</span></button>
+                    `;
+                }
+                attachMarkListeners();
             }
-            attachMarkListeners();
             takeoffFrame = landingFrame = contactFrame = null;
             checkReady();
         }
 
         function attachMarkListeners() {
-            $('mark-takeoff')?.addEventListener('click', () => {
-                takeoffFrame = getCurrentFrame();
-                $('takeoff-frame').textContent = takeoffFrame;
-                $('mark-takeoff').classList.add('marked');
-                checkReady();
-                navigator.vibrate?.(50);
-            });
-            $('mark-landing')?.addEventListener('click', () => {
-                landingFrame = getCurrentFrame();
-                $('landing-frame').textContent = landingFrame;
-                $('mark-landing').classList.add('marked');
-                checkReady();
-                navigator.vibrate?.(50);
-            });
-            $('mark-contact')?.addEventListener('click', () => {
-                contactFrame = getCurrentFrame();
-                $('contact-frame').textContent = contactFrame;
-                $('mark-contact').classList.add('marked');
-                checkReady();
-                navigator.vibrate?.(50);
-            });
+            $('mark-takeoff')?.addEventListener('click', () => markFrame('takeoff'));
+            $('mark-landing')?.addEventListener('click', () => markFrame('landing'));
+            $('mark-contact')?.addEventListener('click', () => markFrame('contact'));
         }
         attachMarkListeners();
 
         function checkReady() {
+            if (selectedJumpType === '10-5-RJT') return; // No manual calculate for RJT
             if (selectedJumpType === 'DJ') {
                 $('calculate-btn').disabled = !(contactFrame !== null && takeoffFrame !== null && landingFrame !== null && contactFrame < takeoffFrame && takeoffFrame < landingFrame);
             } else {
@@ -2282,27 +2744,12 @@
         let motionData = []; // per-frame motion scores
         let autoDetectRunning = false;
 
+        let autoDetectAborted = false;
+
         async function runAutoDetect() {
             if (autoDetectRunning) return;
             autoDetectRunning = true;
-
-            const vp = $('video-player');
-            const canvas = $('detect-canvas');
-            const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-            // Use lower resolution for speed
-            const scale = 0.25;
-            const w = Math.round(vp.videoWidth * scale);
-            const h = Math.round(vp.videoHeight * scale);
-            canvas.width = w;
-            canvas.height = h;
-
-            // Analyze bottom 40% of frame (feet region)
-            const roiTop = Math.round(h * 0.6);
-            const roiH = h - roiTop;
-
-            const totalFrames = Math.floor(vp.duration * videoFps);
-            motionData = new Array(totalFrames).fill(0);
+            autoDetectAborted = false;
 
             const prog = $('autodetect-progress');
             const fill = $('autodetect-fill');
@@ -2310,66 +2757,106 @@
             prog.classList.add('visible');
             $('autodetect-btn').disabled = true;
 
-            let prevPixels = null;
+            try {
+                const vp = $('video-player');
+                const canvas = $('detect-canvas');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-            // Sample frames (skip some for speed on long videos)
-            const step = totalFrames > 500 ? 2 : 1;
+                const scale = 0.25;
+                const w = Math.round(vp.videoWidth * scale);
+                const h = Math.round(vp.videoHeight * scale);
+                canvas.width = w;
+                canvas.height = h;
 
-            for (let f = 0; f < totalFrames; f += step) {
-                // Seek to frame
-                vp.currentTime = f / videoFps;
-                await new Promise(r => { vp.onseeked = r; });
+                const roiTop = Math.round(h * 0.6);
+                const roiH = h - roiTop;
 
-                // Draw and extract pixels from ROI
-                ctx.drawImage(vp, 0, 0, w, h);
-                const imgData = ctx.getImageData(0, roiTop, w, roiH);
-                const pixels = imgData.data;
+                const totalFrames = Math.floor(vp.duration * videoFps);
+                motionData = new Array(totalFrames).fill(0);
 
-                if (prevPixels) {
-                    // Calculate absolute pixel difference (grayscale)
-                    let diff = 0;
-                    for (let i = 0; i < pixels.length; i += 4) {
-                        const grayNow = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
-                        const grayPrev = (prevPixels[i] + prevPixels[i+1] + prevPixels[i+2]) / 3;
-                        diff += Math.abs(grayNow - grayPrev);
+                let prevPixels = null;
+                // Adaptive step: target ~400-600 seeks max for any video
+                // 30fps × 5s = 150 frames → step 1
+                // 120fps × 36s = 4320 frames → step 8 (~540 seeks)
+                // 240fps × 10s = 2400 frames → step 5 (~480 seeks)
+                const targetSeeks = 500;
+                const step = Math.max(1, Math.round(totalFrames / targetSeeks));
+
+                for (let f = 0; f < totalFrames; f += step) {
+                    if (autoDetectAborted) return;
+
+                    // Seek with timeout — if onseeked never fires, abort after 3s
+                    vp.currentTime = f / videoFps;
+                    await new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => { vp.onseeked = null; reject(new Error('seek timeout')); }, 3000);
+                        vp.onseeked = () => { clearTimeout(timeout); resolve(); };
+                    });
+
+                    ctx.drawImage(vp, 0, 0, w, h);
+                    const imgData = ctx.getImageData(0, roiTop, w, roiH);
+                    const pixels = imgData.data;
+
+                    if (prevPixels) {
+                        let diff = 0;
+                        for (let i = 0; i < pixels.length; i += 4) {
+                            const grayNow = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
+                            const grayPrev = (prevPixels[i] + prevPixels[i+1] + prevPixels[i+2]) / 3;
+                            diff += Math.abs(grayNow - grayPrev);
+                        }
+                        const score = diff / (pixels.length / 4);
+                        motionData[f] = score;
+                        if (step > 1 && f > 0) {
+                            for (let s = f - step + 1; s < f; s++) motionData[s] = score;
+                        }
                     }
-                    const score = diff / (pixels.length / 4); // avg diff per pixel
-                    motionData[f] = score;
-                    // Fill skipped frames with same value
-                    if (step > 1 && f > 0) {
-                        for (let s = f - step + 1; s < f; s++) motionData[s] = score;
-                    }
+
+                    prevPixels = new Uint8ClampedArray(pixels);
+
+                    const pct = Math.round((f / totalFrames) * 100);
+                    fill.style.width = pct + '%';
+                    const seeksRemaining = Math.ceil((totalFrames - f) / step);
+                    const estSec = Math.ceil(seeksRemaining * 0.035); // ~35ms per seek
+                    text.textContent = `Analisi: ${pct}%${estSec > 3 ? ` (~${estSec}s)` : ''}`;
+
+                    if (f % (step * 5) === 0) await new Promise(r => setTimeout(r, 0));
                 }
 
-                prevPixels = new Uint8ClampedArray(pixels);
+                fill.style.width = '100%';
+                text.textContent = 'Rilevamento eventi...';
 
-                // Progress
-                const pct = Math.round((f / totalFrames) * 100);
-                fill.style.width = pct + '%';
-                text.textContent = `Analisi: ${pct}% (frame ${f}/${totalFrames})`;
-
-                // Yield to UI every 10 frames
-                if (f % 10 === 0) await new Promise(r => setTimeout(r, 0));
+                if (selectedJumpType === '10-5-RJT') {
+                    // Multi-peak detection for repeated jumps
+                    const jumps = detectRepeatedJumps(motionData);
+                    if (jumps && jumps.length >= 2) {
+                        showRJTResults(jumps, motionData);
+                        drawMotionChartRJT(motionData, jumps);
+                    } else {
+                        text.textContent = `Rilevati ${jumps ? jumps.length : 0} salti. Servono almeno 2. Riprova con video piu lungo.`;
+                        setTimeout(() => prog.classList.remove('visible'), 3000);
+                        return;
+                    }
+                } else {
+                    const detected = detectEvents(motionData);
+                    if (detected) {
+                        showAutoDetectResult(detected);
+                        drawMotionChart(motionData, detected);
+                    } else {
+                        text.textContent = 'Non rilevato. Prova manualmente.';
+                        setTimeout(() => prog.classList.remove('visible'), 2000);
+                        return;
+                    }
+                }
+            } catch(err) {
+                console.warn('Auto-detect error:', err);
+                text.textContent = 'Errore analisi. Prova manualmente.';
+                setTimeout(() => prog.classList.remove('visible'), 2000);
+                return;
+            } finally {
+                $('autodetect-btn').disabled = false;
+                autoDetectRunning = false;
             }
-
-            fill.style.width = '100%';
-            text.textContent = 'Rilevamento eventi...';
-
-            // Find takeoff and landing from motion data
-            const detected = detectEvents(motionData);
 
             prog.classList.remove('visible');
-            $('autodetect-btn').disabled = false;
-            autoDetectRunning = false;
-
-            if (detected) {
-                showAutoDetectResult(detected);
-                drawMotionChart(motionData, detected);
-            } else {
-                text.textContent = 'Non rilevato. Prova manualmente.';
-                prog.classList.add('visible');
-                setTimeout(() => prog.classList.remove('visible'), 2000);
-            }
         }
 
         function detectEvents(data) {
@@ -2459,6 +2946,405 @@
             return null;
         }
 
+        // ============================================
+        // 10-5 REPEATED JUMP TEST — Multi-Peak Detection
+        // ============================================
+        function detectRepeatedJumps(data) {
+            // PEAK DETECTION for continuous bouncing.
+            //
+            // Motion signal during repeated jumps = oscillation:
+            //   HIGH at ground contacts (impact + push-off)
+            //   LOW during flight (body gliding through air)
+            //
+            // We find peaks (contacts) and valleys (flights) in the signal.
+            // The data array has one entry per frame (some interpolated from step).
+
+            // Step 1: Smooth proportional to FPS
+            // At 120fps step=8, effective sample rate ~15Hz. Window should cover ~100ms.
+            const effectiveSampleRate = videoFps / Math.max(1, Math.round(data.length / data.filter(v => v > 0).length || 1));
+            const smoothWindow = Math.max(2, Math.round(videoFps * 0.04)); // ~40ms window in frame units
+            const smoothed = data.map((v, i) => {
+                let sum = 0, cnt = 0;
+                for (let j = Math.max(0, i - smoothWindow); j <= Math.min(data.length - 1, i + smoothWindow); j++) {
+                    sum += data[j]; cnt++;
+                }
+                return sum / cnt;
+            });
+
+            // Step 2: Find active zone more robustly
+            // Use a sliding window to find the region with highest sustained activity
+            const windowSize = Math.round(videoFps * 2); // 2-second sliding window
+            let bestWindowSum = 0, bestWindowStart = 0;
+            let runSum = 0;
+            for (let i = 0; i < Math.min(windowSize, smoothed.length); i++) runSum += smoothed[i];
+            bestWindowSum = runSum;
+            for (let i = windowSize; i < smoothed.length; i++) {
+                runSum += smoothed[i] - smoothed[i - windowSize];
+                if (runSum > bestWindowSum) { bestWindowSum = runSum; bestWindowStart = i - windowSize + 1; }
+            }
+
+            // Expand from best window to find full active region
+            const windowAvg = bestWindowSum / windowSize;
+            const expandThreshold = windowAvg * 0.3; // Region is active if > 30% of peak window avg
+
+            let zoneStart = bestWindowStart;
+            let zoneEnd = Math.min(smoothed.length, bestWindowStart + windowSize);
+            // Expand left
+            while (zoneStart > 0 && smoothed[zoneStart - 1] > expandThreshold) zoneStart--;
+            // Expand right
+            while (zoneEnd < smoothed.length && smoothed[zoneEnd] > expandThreshold) zoneEnd++;
+
+            const zoneLen = zoneEnd - zoneStart;
+            console.log(`[RJT] Active zone: frames ${zoneStart}-${zoneEnd} (${zoneLen} frames, ${(zoneLen/videoFps).toFixed(1)}s), windowAvg: ${windowAvg.toFixed(2)}`);
+
+            if (zoneLen < videoFps * 0.5) return null; // Need at least 0.5s of activity
+
+            // Step 3: Find peaks with PROMINENCE filter
+            // A reactive jump cycle = 0.3-0.7s. Minimum distance between real contacts = 0.25s.
+            const minPeakDist = Math.max(5, Math.round(videoFps * 0.25));
+
+            const zoneSignal = smoothed.slice(zoneStart, zoneEnd);
+            const zoneMax = Math.max(...zoneSignal);
+            const zoneMin = Math.min(...zoneSignal.filter(v => v > 0));
+            const zoneRange = zoneMax - zoneMin;
+
+            // Phase 1: Find ALL local maxima with generous distance
+            let rawPeaks = [];
+            for (let i = 2; i < zoneSignal.length - 2; i++) {
+                const v = zoneSignal[i];
+                if (v <= 0) continue;
+                let isMax = true;
+                for (let j = Math.max(0, i - minPeakDist); j <= Math.min(zoneSignal.length - 1, i + minPeakDist); j++) {
+                    if (j !== i && zoneSignal[j] > v) { isMax = false; break; }
+                }
+                if (isMax) rawPeaks.push({ frame: zoneStart + i, val: v, zoneIdx: i });
+            }
+
+            console.log(`[RJT] Raw peaks: ${rawPeaks.length}, minPeakDist: ${minPeakDist} (${(minPeakDist/videoFps*1000).toFixed(0)}ms)`);
+
+            // Phase 2: Prominence filter — a real contact peak must have a clear valley
+            // (flight phase) on at least one side. Prominence = peak height - highest valley.
+            const peaks = [];
+            for (let p = 0; p < rawPeaks.length; p++) {
+                const peak = rawPeaks[p];
+                const idx = peak.zoneIdx;
+
+                // Find valley to the left (or zone start)
+                let leftValley = peak.val;
+                const leftBound = p > 0 ? rawPeaks[p-1].zoneIdx : 0;
+                for (let i = idx - 1; i >= leftBound; i--) {
+                    if (zoneSignal[i] < leftValley) leftValley = zoneSignal[i];
+                }
+
+                // Find valley to the right (or zone end)
+                let rightValley = peak.val;
+                const rightBound = p < rawPeaks.length - 1 ? rawPeaks[p+1].zoneIdx : zoneSignal.length - 1;
+                for (let i = idx + 1; i <= rightBound; i++) {
+                    if (zoneSignal[i] < rightValley) rightValley = zoneSignal[i];
+                }
+
+                // Prominence = how much the peak stands above the HIGHER of its two valleys
+                const higherValley = Math.max(leftValley, rightValley);
+                const prominence = peak.val - higherValley;
+                const prominenceRatio = prominence / zoneRange;
+
+                // A real ground contact should have prominence >= 15% of zone range
+                if (prominenceRatio >= 0.15) {
+                    peaks.push({ ...peak, prominence, prominenceRatio });
+                }
+            }
+
+            console.log(`[RJT] After prominence filter: ${peaks.length} peaks (from ${rawPeaks.length} raw)`);
+            if (peaks.length >= 2) {
+                const gaps = [];
+                for (let i = 1; i < peaks.length; i++) gaps.push(((peaks[i].frame - peaks[i-1].frame) / videoFps * 1000).toFixed(0));
+                console.log(`[RJT] Peak gaps (ms): ${gaps.join(', ')}`);
+                console.log(`[RJT] Peak prominences: ${peaks.map(p => (p.prominenceRatio * 100).toFixed(0) + '%').join(', ')}`);
+            }
+
+            if (peaks.length < 3) return null;
+
+            // Step 3b: Periodicity filter — merge peaks that are too close
+            // Real jump cycles are roughly periodic. Use median gap to identify
+            // and merge "double peaks" within the same ground contact.
+            function mergeClosePeaks(peakList) {
+                if (peakList.length < 3) return peakList;
+                // Calculate all gaps
+                const gaps = [];
+                for (let i = 1; i < peakList.length; i++) {
+                    gaps.push(peakList[i].frame - peakList[i-1].frame);
+                }
+                // Median gap = expected real cycle time
+                const sortedGaps = [...gaps].sort((a, b) => a - b);
+                const medianGap = sortedGaps[Math.floor(sortedGaps.length / 2)];
+                // Merge threshold: peaks closer than 50% of median cycle are "same contact"
+                const mergeThreshold = medianGap * 0.5;
+
+                console.log(`[RJT] Merge: medianGap=${(medianGap/videoFps*1000).toFixed(0)}ms, mergeThreshold=${(mergeThreshold/videoFps*1000).toFixed(0)}ms`);
+
+                const merged = [peakList[0]];
+                for (let i = 1; i < peakList.length; i++) {
+                    const prev = merged[merged.length - 1];
+                    const gap = peakList[i].frame - prev.frame;
+                    if (gap < mergeThreshold) {
+                        // Too close — keep the higher peak
+                        if (peakList[i].val > prev.val) {
+                            merged[merged.length - 1] = peakList[i];
+                        }
+                    } else {
+                        merged.push(peakList[i]);
+                    }
+                }
+                return merged;
+            }
+
+            // Run merge iteratively until stable
+            let filteredPeaks = peaks;
+            for (let iter = 0; iter < 3; iter++) {
+                const before = filteredPeaks.length;
+                filteredPeaks = mergeClosePeaks(filteredPeaks);
+                console.log(`[RJT] Merge pass ${iter+1}: ${before} → ${filteredPeaks.length} peaks`);
+                if (filteredPeaks.length === before) break;
+            }
+
+            console.log(`[RJT] Final peaks after merge: ${filteredPeaks.length}`);
+            if (filteredPeaks.length >= 2) {
+                const fGaps = [];
+                for (let i = 1; i < filteredPeaks.length; i++) fGaps.push(((filteredPeaks[i].frame - filteredPeaks[i-1].frame) / videoFps * 1000).toFixed(0));
+                console.log(`[RJT] Final gaps (ms): ${fGaps.join(', ')}`);
+            }
+
+            if (filteredPeaks.length < 3) return null;
+
+            // Step 4: Calculate jumps between consecutive FILTERED peaks
+            const jumps = [];
+
+            for (let p = 0; p < filteredPeaks.length - 1; p++) {
+                const peak1 = filteredPeaks[p];
+                const peak2 = filteredPeaks[p + 1];
+
+                // Valley = minimum between peaks
+                let valleyFrame = peak1.frame, valleyVal = Infinity;
+                for (let i = peak1.frame + 1; i < peak2.frame; i++) {
+                    if (smoothed[i] < valleyVal) { valleyVal = smoothed[i]; valleyFrame = i; }
+                }
+
+                // Peak-to-valley contrast must be meaningful
+                const contrast = Math.min(peak1.val, peak2.val) / Math.max(valleyVal, 0.01);
+                if (contrast < 1.2) continue;
+
+                // Crossing threshold: 25% from valley toward peak.
+                // This makes "contact" = the broad high-motion zone around each peak,
+                // and "flight" = the narrow low-motion zone around each valley.
+                // At 50% (midpoint): CT too short, FT too long → heights inflated.
+                // At 25%: CT realistic (200-300ms), FT correct → heights accurate.
+                const crossRatio = 0.25;
+                const cross1 = valleyVal + crossRatio * (peak1.val - valleyVal);
+                const cross2 = valleyVal + crossRatio * (peak2.val - valleyVal);
+
+                // Takeoff = descending crossing after peak1
+                let takeoff = peak1.frame;
+                for (let i = peak1.frame; i < valleyFrame; i++) {
+                    if (smoothed[i] < cross1) { takeoff = i; break; }
+                }
+
+                // Landing = ascending crossing before peak2
+                let landing = peak2.frame;
+                for (let i = valleyFrame; i < peak2.frame; i++) {
+                    if (smoothed[i] > cross2) { landing = i; break; }
+                }
+
+                const flightFrames = landing - takeoff;
+                if (flightFrames < 1) continue;
+
+                const flightTime = flightFrames / videoFps;
+                const height = (9.81 * flightTime * flightTime) / 8 * 100;
+
+                // Contact time: width of peak1 at crossing level
+                let contactStart = peak1.frame;
+                for (let i = peak1.frame; i > zoneStart; i--) {
+                    if (smoothed[i] < cross1) { contactStart = i; break; }
+                }
+                const contactFrames = Math.max(takeoff - contactStart, 1);
+                const contactTime = contactFrames / videoFps;
+
+                // Relaxed sanity for video-based measurement
+                if (height < 1 || height > 80) continue;
+                if (contactTime > 0.8 || contactTime < 0.01) continue;
+                if (flightTime > 1.0) continue;
+
+                const rsi = (height / 100) / contactTime;
+
+                jumps.push({
+                    index: jumps.length + 1,
+                    takeoffFrame: takeoff,
+                    landingFrame: landing,
+                    contactStart,
+                    flightFrames,
+                    flightTime,
+                    height,
+                    contactTime,
+                    rsi,
+                    peakVal: peak1.val,
+                    valleyVal
+                });
+            }
+
+            console.log(`[RJT] Result: ${jumps.length} valid jumps from ${filteredPeaks.length} peaks`);
+            if (jumps.length > 0) {
+                console.log('[RJT] Heights (cm):', jumps.map(j => j.height.toFixed(1)).join(', '));
+                console.log('[RJT] CTs (ms):', jumps.map(j => (j.contactTime*1000).toFixed(0)).join(', '));
+                console.log('[RJT] RSIs:', jumps.map(j => j.rsi.toFixed(2)).join(', '));
+            }
+
+            return jumps;
+        }
+
+        function showRJTResults(jumps, motionData) {
+            const container = $('rjt-results');
+            if (!container) return;
+
+            // Sort by RSI descending to find top 5
+            const ranked = [...jumps].sort((a, b) => b.rsi - a.rsi);
+            const top5 = ranked.slice(0, Math.min(5, ranked.length));
+            const top5Indices = new Set(top5.map(j => j.index));
+
+            // Aggregate stats for top 5
+            const avgRSI = top5.reduce((s, j) => s + j.rsi, 0) / top5.length;
+            const avgHeight = top5.reduce((s, j) => s + j.height, 0) / top5.length;
+            const avgCT = top5.reduce((s, j) => s + j.contactTime, 0) / top5.length;
+            const bestRSI = top5[0].rsi;
+            const bestHeight = Math.max(...top5.map(j => j.height));
+
+            // RSI rating
+            let rsiRating, rsiColor;
+            if (avgRSI >= 2.5) { rsiRating = 'ELITE'; rsiColor = '#14B8A6'; }
+            else if (avgRSI >= 2.0) { rsiRating = 'BUONO'; rsiColor = '#3B82F6'; }
+            else if (avgRSI >= 1.5) { rsiRating = 'MEDIO'; rsiColor = '#F59E0B'; }
+            else { rsiRating = 'DA MIGLIORARE'; rsiColor = '#EF4444'; }
+
+            let html = `
+                <div class="rjt-header">
+                    <div class="rjt-title">10/5 Repeated Jump Test</div>
+                    <div class="rjt-subtitle">${jumps.length} salti rilevati — top ${top5.length} selezionati</div>
+                </div>
+                <div class="rjt-main-stat">
+                    <div class="rjt-main-value" style="color:${rsiColor}">${avgRSI.toFixed(2)}</div>
+                    <div class="rjt-main-label">RSI Medio (top ${top5.length})</div>
+                    <div class="rjt-rating" style="border-color:${rsiColor};color:${rsiColor}">${rsiRating}</div>
+                </div>
+                <div class="rjt-stats-grid">
+                    <div class="rjt-stat"><div class="rjt-stat-value">${bestRSI.toFixed(2)}</div><div class="rjt-stat-label">Best RSI</div></div>
+                    <div class="rjt-stat"><div class="rjt-stat-value">${avgHeight.toFixed(1)}</div><div class="rjt-stat-label">Altezza media (cm)</div></div>
+                    <div class="rjt-stat"><div class="rjt-stat-value">${(avgCT * 1000).toFixed(0)}</div><div class="rjt-stat-label">Contact medio (ms)</div></div>
+                    <div class="rjt-stat"><div class="rjt-stat-value">${bestHeight.toFixed(1)}</div><div class="rjt-stat-label">Best altezza (cm)</div></div>
+                </div>
+                <div class="rjt-table">
+                    <div class="rjt-table-header">
+                        <span>#</span><span>Altezza</span><span>CT</span><span>FT</span><span>RSI</span>
+                    </div>`;
+
+            jumps.forEach(j => {
+                const isTop5 = top5Indices.has(j.index);
+                html += `<div class="rjt-table-row ${isTop5 ? 'top5' : 'excluded'}">
+                    <span>${j.index}${isTop5 ? ' ★' : ''}</span>
+                    <span>${j.height.toFixed(1)}cm</span>
+                    <span>${(j.contactTime * 1000).toFixed(0)}ms</span>
+                    <span>${(j.flightTime * 1000).toFixed(0)}ms</span>
+                    <span class="rjt-rsi-val">${j.rsi.toFixed(2)}</span>
+                </div>`;
+            });
+
+            html += '</div>';
+
+            // Save best to history
+            html += `<button class="rjt-save-btn" id="rjt-save-btn">Salva nel profilo (RSI ${avgRSI.toFixed(2)})</button>`;
+
+            container.innerHTML = html;
+            container.style.display = 'block';
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // Save button
+            $('rjt-save-btn')?.addEventListener('click', () => {
+                const entry = {
+                    type: '10-5-RJT',
+                    height: avgHeight,
+                    rsi: avgRSI,
+                    contactTime: avgCT,
+                    bestRSI: bestRSI,
+                    bestHeight: bestHeight,
+                    jumpCount: jumps.length,
+                    top5Count: top5.length,
+                    date: new Date().toISOString()
+                };
+                jumpHistory.push(entry);
+                localStorage.setItem('airtime_history', JSON.stringify(jumpHistory));
+                loadAthleteProfile();
+                $('rjt-save-btn').disabled = true;
+                $('rjt-save-btn').textContent = 'Salvato';
+                navigator.vibrate?.([50, 50, 100]);
+            });
+
+            navigator.vibrate?.([50, 50, 100]);
+        }
+
+        function drawMotionChartRJT(data, jumps) {
+            const container = $('motion-chart');
+            container.style.display = 'block';
+            const canvas = $('motion-canvas');
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * 2;
+            canvas.height = rect.height * 2;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const max = Math.max(...data.filter(v => v > 0));
+            if (max === 0) return;
+
+            const pad = { left: 10, right: 10, top: 10, bottom: 10 };
+
+            // Draw motion signal
+            ctx.strokeStyle = 'rgba(148,163,184,0.4)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let i = 0; i < data.length; i++) {
+                const x = pad.left + (w - pad.left - pad.right) * (i / data.length);
+                const y = h - pad.bottom - (h - pad.top - pad.bottom) * (data[i] / max);
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Highlight each jump's flight phase
+            const ranked = [...jumps].sort((a, b) => b.rsi - a.rsi);
+            const top5Set = new Set(ranked.slice(0, 5).map(j => j.index));
+
+            jumps.forEach(j => {
+                const isTop5 = top5Set.has(j.index);
+                const x1 = pad.left + (w - pad.left - pad.right) * (j.takeoffFrame / data.length);
+                const x2 = pad.left + (w - pad.left - pad.right) * (j.landingFrame / data.length);
+
+                ctx.fillStyle = isTop5 ? 'rgba(20,184,166,0.15)' : 'rgba(148,163,184,0.08)';
+                ctx.fillRect(x1, pad.top, x2 - x1, h - pad.top - pad.bottom);
+
+                // Takeoff line
+                ctx.strokeStyle = isTop5 ? 'rgba(20,184,166,0.6)' : 'rgba(148,163,184,0.2)';
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(x1, pad.top); ctx.lineTo(x1, h - pad.bottom); ctx.stroke();
+                // Landing line
+                ctx.beginPath(); ctx.moveTo(x2, pad.top); ctx.lineTo(x2, h - pad.bottom); ctx.stroke();
+
+                // Jump number label
+                if (isTop5) {
+                    ctx.fillStyle = '#14B8A6';
+                    ctx.font = 'bold 18px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(j.index.toString(), (x1 + x2) / 2, pad.top + 16);
+                }
+            });
+        }
+
         function showAutoDetectResult(detected) {
             const result = $('autodetect-result');
             const text = $('autodetect-result-text');
@@ -2541,7 +3427,10 @@
             updateDisplay();
         });
 
+        let lastDetected = null; // Cache for redraw on resize
+
         function drawMotionChart(data, detected) {
+            lastDetected = detected; // Save for redraw
             const container = $('motion-chart');
             container.style.display = 'block';
             const canvas = $('motion-canvas');
@@ -2602,9 +3491,14 @@
         $('upload-zone').addEventListener('click', () => $('video-input').click());
         $('video-input').addEventListener('change', e => { if (e.target.files.length) loadVideo(e.target.files[0]); });
 
+        let currentVideoUrl = null; // Track for cleanup
+
         async function loadVideo(file) {
             const vp = $('video-player');
-            vp.src = URL.createObjectURL(file);
+            // Revoke previous blob URL to free memory
+            if (currentVideoUrl) { URL.revokeObjectURL(currentVideoUrl); currentVideoUrl = null; }
+            currentVideoUrl = URL.createObjectURL(file);
+            vp.src = currentVideoUrl;
             vp.addEventListener('loadedmetadata', async () => {
                 $('upload-zone').style.display = 'none';
                 $('video-section').classList.add('active');
@@ -2627,46 +3521,106 @@
         }
 
         async function attemptFpsDetection() {
-            if (!('requestVideoFrameCallback' in HTMLVideoElement.prototype)) return;
             try {
-                const detected = await detectFps();
+                const detected = await detectFpsViaSeek();
                 if (detected && detected >= 15 && detected <= 300) {
                     const common = [24,25,30,60,120,240];
                     let fps = detected;
-                    for (const c of common) if (Math.abs(detected - c) <= 3) { fps = c; break; }
+                    for (const c of common) if (Math.abs(detected - c) <= 5) { fps = c; break; }
                     $('fps-detected-value').textContent = fps + ' FPS';
                     $('fps-confirm-banner').classList.add('visible');
                     const opt = Array.from($('fps-select').options).find(o => +o.value === fps);
                     if (opt) $('fps-select').value = fps; else { $('fps-select').value = 'custom'; $('custom-fps').value = fps; $('custom-fps').classList.add('visible'); }
                     videoFps = fps;
+
+                    // Show slow-mo warning if: detected ≤30fps AND video is long (>8s)
+                    // Slow-mo videos are typically 4x longer than real time
+                    const vp = $('video-player');
+                    const mayBeSlowMo = fps <= 30 && vp.duration > 8;
+                    $('fps-slowmo-warning').style.display = mayBeSlowMo ? 'block' : 'none';
                 }
-            } catch(e) {}
+            } catch(e) { console.warn('FPS detection failed:', e); }
         }
 
-        function detectFps() {
-            return new Promise(resolve => {
-                const vp = $('video-player');
-                const ts = [];
-                let n = 0, done = false;
-                const cb = (now, meta) => {
-                    if (done) return;
-                    ts.push(meta.mediaTime);
-                    if (++n >= 15) {
-                        done = true; vp.pause(); vp.currentTime = 0;
-                        const deltas = [];
-                        for (let i = 1; i < ts.length; i++) { const d = ts[i] - ts[i-1]; if (d > 0 && d < 0.2) deltas.push(d); }
-                        if (deltas.length >= 5) { deltas.sort((a,b) => a-b); resolve(Math.round(1 / deltas[Math.floor(deltas.length/2)])); }
-                        else resolve(null);
-                        return;
+        // Seek-based FPS detection — works correctly with iPhone slow-mo.
+        //
+        // iPhone slow-mo stores frames at 120/240fps but with time-remapping,
+        // so playback APIs report 30fps. We detect the TRUE frame rate by
+        // counting unique frames in a time window via pixel comparison.
+        //
+        // Strategy: seek at 1/240s intervals through 0.25s of video.
+        // Count how many seeks produce a visually different frame.
+        // rawFPS = uniqueFrames / testDuration → snap to nearest common FPS.
+        async function detectFpsViaSeek() {
+            const vp = $('video-player');
+            const canvas = document.createElement('canvas');
+            const sz = 48; // Large enough for reliable pixel comparison
+            canvas.width = sz; canvas.height = sz;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+            function seekTo(t) {
+                return new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => { vp.onseeked = null; reject('timeout'); }, 2000);
+                    vp.onseeked = () => { clearTimeout(timeout); resolve(); };
+                    vp.currentTime = Math.min(Math.max(t, 0), vp.duration - 0.01);
+                });
+            }
+
+            function getPixels() {
+                ctx.drawImage(vp, 0, 0, sz, sz);
+                return new Uint8Array(ctx.getImageData(0, 0, sz, sz).data);
+            }
+
+            function framesAreDifferent(a, b) {
+                // Count pixels with significant RGB change
+                let changed = 0;
+                const total = a.length / 4;
+                for (let i = 0; i < a.length; i += 4) {
+                    const diff = Math.abs(a[i] - b[i]) + Math.abs(a[i+1] - b[i+1]) + Math.abs(a[i+2] - b[i+2]);
+                    if (diff > 30) changed++;
+                }
+                // >0.5% of pixels changed = different frame
+                return (changed / total) > 0.005;
+            }
+
+            // Start at 1/3 of video (should have movement, not black intro)
+            const startT = Math.min(1.0, vp.duration * 0.33);
+            const testDuration = 0.25; // Analyze 250ms
+            const fineStep = 1 / 240; // Seek at 240fps resolution
+            const numSeeks = Math.ceil(testDuration / fineStep); // ~60 seeks
+
+            let uniqueFrames = 0;
+            let prevPixels = null;
+
+            try {
+                for (let i = 0; i < numSeeks; i++) {
+                    await seekTo(startT + i * fineStep);
+                    const pixels = getPixels();
+                    if (prevPixels === null || framesAreDifferent(pixels, prevPixels)) {
+                        uniqueFrames++;
                     }
-                    vp.requestVideoFrameCallback(cb);
-                };
+                    prevPixels = pixels;
+                }
+            } catch(e) {
+                console.warn('FPS seek detection error:', e);
                 vp.currentTime = 0;
-                vp.requestVideoFrameCallback(cb);
-                vp.muted = true;
-                vp.play()?.catch(() => { done = true; resolve(null); });
-                setTimeout(() => { if (!done) { done = true; vp.pause(); vp.currentTime = 0; resolve(null); } }, 2000);
-            });
+                return null;
+            }
+
+            vp.currentTime = 0;
+
+            // Calculate and snap to nearest common FPS
+            const rawFps = uniqueFrames / testDuration;
+            const common = [30, 60, 120, 240];
+            let bestFps = 30;
+            let bestDist = Infinity;
+            for (const c of common) {
+                const dist = Math.abs(rawFps - c);
+                if (dist < bestDist) { bestDist = dist; bestFps = c; }
+            }
+
+            console.log(`[FPS] Raw: ${rawFps.toFixed(1)}, Unique: ${uniqueFrames}/${numSeeks} in ${testDuration}s → ${bestFps}`);
+            return bestFps;
         }
 
         $('fps-confirm-yes').addEventListener('click', () => {
@@ -2675,6 +3629,8 @@
             $('fps-badge').className = 'fps-badge auto';
             $('fps-confirm-banner').classList.remove('visible');
             $('scrubber').step = 1 / videoFps;
+            // Auto-start detection after FPS is confirmed
+            runAutoDetect();
         });
         $('fps-confirm-no').addEventListener('click', () => { $('fps-confirm-banner').classList.remove('visible'); $('fps-select').focus(); });
 
@@ -2701,10 +3657,16 @@
         $('prev-5-frame').addEventListener('click', () => stepFrame(-5));
         $('next-5-frame').addEventListener('click', () => stepFrame(5));
         let stepInt;
-        $('prev-frame').addEventListener('touchstart', e => { e.preventDefault(); stepFrame(-1); stepInt = setInterval(() => stepFrame(-1), 100); });
-        $('prev-frame').addEventListener('touchend', () => clearInterval(stepInt));
-        $('next-frame').addEventListener('touchstart', e => { e.preventDefault(); stepFrame(1); stepInt = setInterval(() => stepFrame(1), 100); });
-        $('next-frame').addEventListener('touchend', () => clearInterval(stepInt));
+        function stopStepping() { clearInterval(stepInt); stepInt = null; }
+        function bindLongPress(id, dir) {
+            const el = $(id);
+            el.addEventListener('touchstart', e => { e.preventDefault(); stepFrame(dir); stepInt = setInterval(() => stepFrame(dir), 100); });
+            el.addEventListener('touchend', stopStepping);
+            el.addEventListener('touchcancel', stopStepping);
+            el.addEventListener('pointerleave', stopStepping);
+        }
+        bindLongPress('prev-frame', -1);
+        bindLongPress('next-frame', 1);
 
         $('fps-select').addEventListener('change', () => {
             $('fps-badge').textContent = 'MANUALE';
@@ -2720,6 +3682,8 @@
                 $('scrubber').step = 1/videoFps;
                 fpsConfirmed = true;
                 updateDisplay();
+                // Auto-start detection after manual FPS selection
+                if ($('video-section').classList.contains('active')) runAutoDetect();
             }
         });
         $('custom-fps').addEventListener('input', () => {
@@ -2773,22 +3737,21 @@
                 const ct = ctFrames / videoFps;
                 lastResult.contactTime = ct;
                 lastResult.rsi = (h / 100) / ct;
+                lastResult.ftct = flightTime / ct; // Flight Time : Contact Time ratio
                 lastResult.boxHeight = parseInt($('dj-box-input').value) || 40;
-
-                const mass = parseFloat($('weight-input').value);
-                if (mass > 0) {
-                    const tf = flightTime, tc = ct;
-                    const denom = (tf + tc) / Math.PI - tc / 4;
-                    if (denom > 0) {
-                        lastResult.stiffness = (mass * Math.PI * (tf + tc)) / (tc * tc * denom) / 1000;
-                    }
-                }
             }
 
-            // Power (Sayers)
+            // Power — Sayers et al. (1999) Med Sci Sports Exerc 31(4):572-577
+            // CMJ equation: P = 51.9 × h(cm) + 48.9 × BW(kg) − 2007
+            // SJ equation:  P = 60.7 × h(cm) + 45.3 × BW(kg) − 2055
             const weight = parseFloat($('weight-input').value);
             if (weight > 0) {
-                lastResult.power = Math.round(60.7 * h + 45.3 * weight - 2055);
+                if (selectedJumpType === 'SJ') {
+                    lastResult.power = Math.round(60.7 * h + 45.3 * weight - 2055);
+                } else {
+                    // CMJ, Abalakov, DJ — use CMJ coefficients
+                    lastResult.power = Math.round(51.9 * h + 48.9 * weight - 2007);
+                }
                 athleteData.lastPower = lastResult.power;
                 localStorage.setItem('airtime_athlete', JSON.stringify(athleteData));
             }
@@ -2808,20 +3771,18 @@
             // Stats
             const stats = $('result-stats');
             if (selectedJumpType === 'DJ') {
-                const hasStiffness = lastResult.stiffness != null;
                 const contactMs = lastResult.contactTime * 1000;
                 const contactWarning = contactMs > 250;
-                stats.className = 'result-stats ' + (hasStiffness ? 'five-cols' : 'four-cols');
+                stats.className = 'result-stats five-cols';
                 let html = `
                     <div class="stat-item"><div class="stat-value">${(h/2.54).toFixed(1)}"</div><div class="stat-label">Inch</div></div>
                     <div class="stat-item"><div class="stat-value">${(flightTime*1000).toFixed(0)}</div><div class="stat-label">Flight ms</div></div>
                     <div class="stat-item ${contactWarning ? 'warning' : ''}"><div class="stat-value">${contactMs.toFixed(0)}</div><div class="stat-label">Contact ms</div></div>
                     <div class="stat-item highlight"><div class="stat-value">${lastResult.rsi.toFixed(2)}</div><div class="stat-label">RSI</div></div>
-                    ${hasStiffness ? `<div class="stat-item"><div class="stat-value">${lastResult.stiffness.toFixed(1)}</div><div class="stat-label">kN/m</div></div>` : ''}
+                    <div class="stat-item"><div class="stat-value">${lastResult.ftct.toFixed(2)}</div><div class="stat-label">FT:CT</div></div>
                 `;
-                if (contactWarning) html += `<div class="contact-warning">Contact >250ms: non e un DJ reattivo puro. RSI e Stiffness potrebbero non essere validi.</div>`;
-                if (!hasStiffness) { html += `<div class="weight-tip">Inserisci il peso corporeo per calcolare Stiffness e Potenza</div>`; $('weight-input').classList.add('highlight-input'); }
-                else $('weight-input').classList.remove('highlight-input');
+                if (contactWarning) html += `<div class="contact-warning">Contact >250ms: non e un DJ reattivo puro. RSI potrebbe non essere valido per la reattivita.</div>`;
+                $('weight-input').classList.remove('highlight-input');
 
                 // RSI modificato (height / drop height)
                 const boxH = parseInt($('dj-box-input').value) || 40;
@@ -2851,8 +3812,9 @@
             // Bosco
             showBoscoIndices();
 
-            // FP Profile
+            // FP Profile + Upsell
             updateForcePowerProfile(h);
+            updateUpsell(h);
 
             // Benchmarks
             if (selectedJumpType === 'CMJ') {
@@ -2940,7 +3902,8 @@
         function showBoscoIndices() {
             const grid = $('bosco-grid');
             const indices = $('bosco-indices');
-            let html = '';
+            let boscoHtml = '';  // Bosco original indices
+            let otherHtml = ''; // Derived / other metrics
             let hasNewIndex = false;
 
             const cmjBest = getBestFromHistory('CMJ');
@@ -2950,27 +3913,52 @@
             const sjH = sjBest?.height;
             const abaH = abaBest?.height;
 
+            // --- BOSCO ORIGINAL INDICES ---
+            // Indice di Elasticita (Bosco et al., 1983)
             if (cmjH && sjH) {
                 hasNewIndex = true;
                 const ie = ((cmjH - sjH) / sjH * 100);
                 const ieText = ie > 20 ? 'Alto - SJ debole?' : ie >= 10 ? 'Ottimale' : ie >= 5 ? 'Buono' : 'Deficit SSC';
-                html += `<div class="bosco-item"><div class="bosco-value">${ie.toFixed(1)}%</div><div class="bosco-label">Indice Elasticita</div><div class="bosco-interpretation">${ieText}</div></div>`;
+                boscoHtml += `<div class="bosco-item"><div class="bosco-value">${ie.toFixed(1)}%</div><div class="bosco-label">Indice Elasticita</div><div class="bosco-interpretation">${ieText}</div></div>`;
             }
+            // Indice Coordinazione Braccia (Bosco battery)
             if (cmjH && abaH) {
                 hasNewIndex = true;
                 const icb = ((abaH - cmjH) / cmjH * 100);
                 const icbText = icb >= 12 ? 'Ottima coord.' : icb >= 8 ? 'Buona' : 'Da migliorare';
-                html += `<div class="bosco-item"><div class="bosco-value">${icb.toFixed(1)}%</div><div class="bosco-label">Indice Coord. Braccia</div><div class="bosco-interpretation">${icbText}</div></div>`;
+                boscoHtml += `<div class="bosco-item"><div class="bosco-value">${icb.toFixed(1)}%</div><div class="bosco-label">Indice Coord. Braccia</div><div class="bosco-interpretation">${icbText}</div></div>`;
             }
-            if (lastResult.power) html += `<div class="bosco-item"><div class="bosco-value">${lastResult.power} W</div><div class="bosco-label">Potenza</div></div>`;
+
+            // --- DERIVED METRICS (not original Bosco) ---
+            // EUR — McGuigan et al. (2006)
+            if (cmjH && sjH) {
+                const eur = cmjH / sjH;
+                const eurText = eur >= 1.15 ? 'Ottimo SSC' : eur >= 1.05 ? 'Normale' : 'Basso SSC';
+                otherHtml += `<div class="bosco-item"><div class="bosco-value">${eur.toFixed(2)}</div><div class="bosco-label">EUR (CMJ/SJ)</div><div class="bosco-interpretation">${eurText}</div></div>`;
+            }
+            // Sayers Power
+            if (lastResult.power) {
+                otherHtml += `<div class="bosco-item"><div class="bosco-value">${lastResult.power} W</div><div class="bosco-label">Potenza (Sayers)</div></div>`;
+            }
+            // DJ-specific
             if (selectedJumpType === 'DJ') {
                 const rsiText = lastResult.rsi >= 2.5 ? 'Elite' : lastResult.rsi >= 2.0 ? 'Buono' : lastResult.rsi >= 1.5 ? 'Medio' : 'Base';
-                html += `<div class="bosco-item"><div class="bosco-value">${lastResult.rsi.toFixed(2)}</div><div class="bosco-label">RSI</div><div class="bosco-interpretation">${rsiText}</div></div>`;
-                if (lastResult.stiffness != null) {
-                    const st = lastResult.stiffness >= 40 ? 'Elite' : lastResult.stiffness >= 30 ? 'Buono' : lastResult.stiffness >= 20 ? 'Medio' : 'Base';
-                    html += `<div class="bosco-item"><div class="bosco-value">${lastResult.stiffness.toFixed(1)} kN/m</div><div class="bosco-label">Vertical Stiffness</div><div class="bosco-interpretation">${st}</div></div>`;
+                otherHtml += `<div class="bosco-item"><div class="bosco-value">${lastResult.rsi.toFixed(2)}</div><div class="bosco-label">RSI</div><div class="bosco-interpretation">${rsiText}</div></div>`;
+                if (lastResult.ftct) {
+                    const ftctText = lastResult.ftct >= 3.0 ? 'Elastico' : lastResult.ftct >= 2.0 ? 'Buono' : 'Rigido/lento';
+                    otherHtml += `<div class="bosco-item"><div class="bosco-value">${lastResult.ftct.toFixed(2)}</div><div class="bosco-label">FT:CT</div><div class="bosco-interpretation">${ftctText}</div></div>`;
                 }
             }
+
+            // Build combined HTML with section headers
+            let html = '';
+            if (boscoHtml) {
+                html += `<div class="bosco-item wide" style="background:none;padding:0.2rem 0"><div class="bosco-label" style="color:var(--teal);font-weight:700;letter-spacing:0.05em">Indici Bosco</div></div>` + boscoHtml;
+            }
+            if (otherHtml) {
+                html += `<div class="bosco-item wide" style="background:none;padding:0.2rem 0;margin-top:0.3rem"><div class="bosco-label" style="color:var(--slate-400);font-weight:700;letter-spacing:0.05em">Metriche derivate</div></div>` + otherHtml;
+            }
+
             if (html) {
                 grid.innerHTML = html;
                 indices.style.display = 'block';
@@ -2996,10 +3984,6 @@
             if (!isCompleteAthlete) {
                 fpSection.style.display = 'none';
                 upsellSection.style.display = 'block';
-                const t = $('upsell-title');
-                if (cmjHeight < 40) t.textContent = 'Costruisci le Basi';
-                else if (cmjHeight < 55) t.textContent = 'Livello Successivo';
-                else t.textContent = 'Perfeziona';
                 return;
             }
 
@@ -3007,8 +3991,12 @@
             upsellSection.style.display = 'none';
 
             const relStr = squat / weight;
-            const power = lastResult.power || Math.round(60.7 * cmjH + 45.3 * weight - 2055);
-            const expectedCMJ = 18 + (relStr * 18);
+            // Always compute CMJ-specific power (Sayers CMJ equation)
+            // Don't use lastResult.power — it may be from SJ or DJ
+            const power = Math.round(51.9 * cmjH + 48.9 * weight - 2007);
+            // Wisløff et al. (2004) Br J Sports Med 38:285-288
+            // Regression: CMJ(cm) = 0.18 × 1RM squat(kg) + 7.4 (r=0.78, p<0.01)
+            const expectedCMJ = 0.18 * squat + 7.4;
             const deficit = expectedCMJ - cmjH;
 
             $('fp-rel-str').textContent = relStr.toFixed(2) + 'x';
@@ -3028,9 +4016,29 @@
             $('fp-quadrant-name').textContent = quadrant;
             $('fp-quadrant-desc').textContent = desc;
 
-            if (deficit > 3) { $('fp-deficit').style.display = 'inline-block'; $('fp-deficit').textContent = `Gap: ${deficit.toFixed(0)}cm sotto il potenziale`; }
-            else if (deficit < -5) { $('fp-deficit').style.display = 'inline-block'; $('fp-deficit').textContent = `+${Math.abs(deficit).toFixed(0)}cm sopra le attese`; }
+            // Deficit vs Wisløff regression expected value
+            if (deficit > 3) { $('fp-deficit').style.display = 'inline-block'; $('fp-deficit').textContent = `Gap: ${deficit.toFixed(0)}cm sotto atteso (Wisløff)`; }
+            else if (deficit < -5) { $('fp-deficit').style.display = 'inline-block'; $('fp-deficit').textContent = `+${Math.abs(deficit).toFixed(0)}cm sopra atteso (Wisløff)`; }
             else $('fp-deficit').style.display = 'none';
+
+            // Contextual CTA based on quadrant
+            const utm = 'utm_source=airtime&utm_medium=webapp&utm_campaign=jump_tool';
+            const ctaEl = $('fp-cta-link');
+            if (ctaEl) {
+                if (isStrong && !isExplosive) {
+                    ctaEl.href = `https://www.nicholasrubini.it/prodotto/defy-gravity/?${utm}&utm_content=fp_deficit_potenza`;
+                    ctaEl.textContent = 'Sblocca la potenza → Defy Gravity';
+                } else if (!isStrong && isExplosive) {
+                    ctaEl.href = `https://www.nicholasrubini.it/prodotto/allenare-la-forza-esplosiva/?${utm}&utm_content=fp_deficit_forza`;
+                    ctaEl.textContent = 'Costruisci forza → Corso Forza Esplosiva';
+                } else if (!isStrong && !isExplosive) {
+                    ctaEl.href = `https://www.nicholasrubini.it/prodotto/defy-gravity/?${utm}&utm_content=fp_basi`;
+                    ctaEl.textContent = 'Inizia da qui → Defy Gravity';
+                } else {
+                    ctaEl.href = `https://www.nicholasrubini.it/prodotto/allenare-la-forza-esplosiva/?${utm}&utm_content=fp_completo`;
+                    ctaEl.textContent = 'Perfeziona la scienza → Forza Esplosiva';
+                }
+            }
 
             athleteData.relativeStrength = relStr;
             athleteData.quadrant = quadrant;
@@ -3053,31 +4061,124 @@
         // ============================================
         $('share-btn').addEventListener('click', async () => {
             const canvas = $('share-canvas'), ctx = canvas.getContext('2d'), w = 1080, h = 1920;
-            ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, w, h);
-            const gr = ctx.createRadialGradient(w/2, h/3, 0, w/2, h/3, w);
-            gr.addColorStop(0, 'rgba(59,130,246,0.15)'); gr.addColorStop(1, 'transparent');
-            ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h);
-            ctx.fillStyle = '#3B82F6'; ctx.font = '100px Arial'; ctx.textAlign = 'center';
-            ctx.fillText('⏱', w/2, 200);
-            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 72px Inter, Arial'; ctx.fillText('AIRTIME', w/2, 320);
-            ctx.fillStyle = 'rgba(236,245,246,0.6)'; ctx.font = '36px Arial'; ctx.fillText(jumpTypeInfo[selectedJumpType].name, w/2, 400);
-            ctx.fillStyle = '#3B82F6'; ctx.font = 'bold 280px Inter, Arial'; ctx.fillText(lastResult.cm.toFixed(1), w/2, 750);
-            ctx.fillStyle = 'rgba(236,245,246,0.8)'; ctx.font = 'bold 80px Inter, Arial'; ctx.fillText('cm', w/2, 860);
-            ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.roundRect(w/2-200, 920, 400, 80, 40); ctx.fill();
-            ctx.strokeStyle = '#14B8A6'; ctx.lineWidth = 3; ctx.stroke();
-            ctx.fillStyle = '#3B82F6'; ctx.font = 'bold 40px Inter, Arial'; ctx.fillText(getRating(lastResult.cm), w/2, 975);
-            ctx.fillStyle = 'rgba(236,245,246,0.5)'; ctx.font = '32px Arial';
-            let extra = `${(lastResult.cm/2.54).toFixed(1)}"`;
-            if (lastResult.power) extra += ` | ${lastResult.power}W`;
-            if (lastResult.rsi) extra += ` | RSI ${lastResult.rsi.toFixed(2)}`;
-            ctx.fillText(extra, w/2, 1100);
-            ctx.fillStyle = '#3B82F6'; ctx.font = 'bold 36px Inter, Arial'; ctx.fillText('NICHOLAS RUBINI', w/2, 1700);
-            ctx.fillStyle = 'rgba(236,245,246,0.4)'; ctx.font = '28px Arial'; ctx.fillText('nicholasrubini.it', w/2, 1820);
+            // Instagram/Meta Story safe zones:
+            // Top: 270px (username + timestamp overlay)
+            // Bottom: 340px (CTA "send message" / swipe up area)
+            // Sides: 64px
+            // Content zone: y 270 → 1580 (1310px height)
+            const SAFE_TOP = 270, SAFE_BOT = 340, SAFE_X = 72;
+            const contentTop = SAFE_TOP;
+            const contentBot = h - SAFE_BOT;
+            const contentMid = (contentTop + contentBot) / 2; // ~925
+
+            // === BACKGROUND ===
+            ctx.fillStyle = '#0B1120'; ctx.fillRect(0, 0, w, h);
+            const g1 = ctx.createRadialGradient(250, contentMid - 200, 0, 250, contentMid - 200, 600);
+            g1.addColorStop(0, 'rgba(59,130,246,0.15)'); g1.addColorStop(1, 'transparent');
+            ctx.fillStyle = g1; ctx.fillRect(0, 0, w, h);
+            const g2 = ctx.createRadialGradient(830, contentMid + 300, 0, 830, contentMid + 300, 500);
+            g2.addColorStop(0, 'rgba(20,184,166,0.08)'); g2.addColorStop(1, 'transparent');
+            ctx.fillStyle = g2; ctx.fillRect(0, 0, w, h);
+            // Grid texture
+            ctx.strokeStyle = 'rgba(59,130,246,0.025)'; ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+            for (let y = 0; y < h; y += 60) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+            // === TOP BAR (decorative, ok if overlapped) ===
+            const topGr = ctx.createLinearGradient(0, 0, w, 0);
+            topGr.addColorStop(0, '#3B82F6'); topGr.addColorStop(1, '#14B8A6');
+            ctx.fillStyle = topGr; ctx.fillRect(0, 0, w, 5);
+
+            // === All critical content inside safe zone ===
+            ctx.textAlign = 'center';
+            let y = contentTop + 30;
+
+            // App name (small, not critical if partially overlapped)
+            ctx.font = 'bold 36px Inter, Arial'; ctx.fillStyle = 'rgba(96,165,250,0.6)';
+            ctx.fillText('AIRTIME', w/2, y); y += 50;
+
+            // Jump type badge
+            const typeName = jumpTypeInfo[selectedJumpType].name.toUpperCase();
+            ctx.font = 'bold 26px Inter, Arial';
+            const typeW = ctx.measureText(typeName).width + 60;
+            ctx.fillStyle = 'rgba(20,184,166,0.12)';
+            ctx.beginPath(); ctx.roundRect(w/2 - typeW/2, y - 18, typeW, 44, 22); ctx.fill();
+            ctx.strokeStyle = 'rgba(20,184,166,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = '#14B8A6'; ctx.fillText(typeName, w/2, y + 10); y += 65;
+
+            // === MAIN RESULT — centered in safe zone ===
+            // Glow
+            const numGlow = ctx.createRadialGradient(w/2, y + 140, 0, w/2, y + 140, 350);
+            numGlow.addColorStop(0, 'rgba(59,130,246,0.06)'); numGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = numGlow; ctx.fillRect(0, y, w, 350);
+            // Number
+            const numGr = ctx.createLinearGradient(w/2 - 250, y, w/2 + 250, y + 280);
+            numGr.addColorStop(0, '#3B82F6'); numGr.addColorStop(0.5, '#60A5FA'); numGr.addColorStop(1, '#14B8A6');
+            ctx.fillStyle = numGr; ctx.font = 'bold 280px Inter, Arial';
+            ctx.fillText(lastResult.cm.toFixed(1), w/2, y + 220);
+            // "cm"
+            ctx.fillStyle = 'rgba(148,163,184,0.6)'; ctx.font = '600 56px Inter, Arial';
+            ctx.fillText('cm', w/2, y + 290); y += 330;
+
+            // Rating badge
+            ctx.fillStyle = 'rgba(15,23,42,0.8)';
+            ctx.beginPath(); ctx.roundRect(w/2-150, y, 300, 54, 27); ctx.fill();
+            ctx.strokeStyle = 'rgba(20,184,166,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = '#14B8A6'; ctx.font = 'bold 28px Inter, Arial';
+            ctx.fillText(getRating(lastResult.cm), w/2, y + 35); y += 80;
+
+            // === STATS CARDS ===
+            const cardH = 90, cardGap = 10;
+            function drawStatCard(x, cw, value, label, accent) {
+                ctx.fillStyle = 'rgba(30,41,59,0.6)';
+                ctx.beginPath(); ctx.roundRect(x, y, cw, cardH, 10); ctx.fill();
+                ctx.strokeStyle = 'rgba(59,130,246,0.08)'; ctx.lineWidth = 1; ctx.stroke();
+                ctx.fillStyle = accent ? '#3B82F6' : '#E2E8F0';
+                ctx.font = 'bold 32px Inter, Arial'; ctx.fillText(value, x + cw/2, y + 38);
+                ctx.fillStyle = '#64748B'; ctx.font = '500 18px Inter, Arial';
+                ctx.fillText(label, x + cw/2, y + 68);
+            }
+
+            if (selectedJumpType === 'DJ') {
+                const cw = (w - SAFE_X*2 - cardGap*3) / 4;
+                let cx = SAFE_X;
+                drawStatCard(cx, cw, `${(lastResult.cm/2.54).toFixed(1)}"`, 'INCHES', false); cx += cw + cardGap;
+                drawStatCard(cx, cw, lastResult.rsi ? lastResult.rsi.toFixed(2) : '--', 'RSI', true); cx += cw + cardGap;
+                drawStatCard(cx, cw, lastResult.ftct ? lastResult.ftct.toFixed(2) : '--', 'FT:CT', false); cx += cw + cardGap;
+                drawStatCard(cx, cw, lastResult.contactTime ? `${(lastResult.contactTime*1000).toFixed(0)}ms` : '--', 'CONTACT', false);
+            } else {
+                const cw = (w - SAFE_X*2 - cardGap*2) / 3;
+                let cx = SAFE_X;
+                drawStatCard(cx, cw, `${(lastResult.cm/2.54).toFixed(1)}"`, 'INCHES', false); cx += cw + cardGap;
+                drawStatCard(cx, cw, `${(lastResult.flightTime*1000).toFixed(0)}ms`, 'FLIGHT TIME', false); cx += cw + cardGap;
+                drawStatCard(cx, cw, lastResult.power ? `${lastResult.power}W` : '--', 'POWER', true);
+            }
+            y += cardH + 40;
+
+            // === FOOTER — inside safe zone, above bottom danger area ===
+            // Position: anchor to contentBot - margin
+            const footY = contentBot - 120;
+            // Separator
+            const sepGr = ctx.createLinearGradient(w/2 - 200, 0, w/2 + 200, 0);
+            sepGr.addColorStop(0, 'transparent'); sepGr.addColorStop(0.3, 'rgba(59,130,246,0.3)');
+            sepGr.addColorStop(0.7, 'rgba(20,184,166,0.3)'); sepGr.addColorStop(1, 'transparent');
+            ctx.strokeStyle = sepGr; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(w/2 - 200, footY); ctx.lineTo(w/2 + 200, footY); ctx.stroke();
+            // Name
+            ctx.fillStyle = '#E2E8F0'; ctx.font = 'bold 30px Inter, Arial';
+            ctx.fillText('Nicholas Rubini', w/2, footY + 40);
+            // Title
+            ctx.fillStyle = '#64748B'; ctx.font = '500 22px Inter, Arial';
+            ctx.fillText('Strength & Performance Coach', w/2, footY + 72);
+            // Domain
+            ctx.fillStyle = '#3B82F6'; ctx.font = '500 20px Inter, Arial';
+            ctx.fillText('nicholasrubini.it', w/2, footY + 105);
+
             try {
                 const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
                 const file = new File([blob], 'airtime.png', { type: 'image/png' });
                 if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], title: 'AIRTIME Result' });
-                else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'airtime.png'; a.click(); }
+                else { const a = document.createElement('a'); const url = URL.createObjectURL(blob); a.href = url; a.download = 'airtime.png'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 5000); }
             } catch(e) {}
         });
 
@@ -3131,9 +4232,10 @@
                     doc.setFont('helvetica', 'normal');
                     const d = new Date(best.date);
                     doc.text(d.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }), M + 90, y + 5);
-                    let extra = '';
-                    if (best.rsi) extra = 'RSI ' + best.rsi.toFixed(2);
-                    if (best.power) extra = best.power + 'W';
+                    const parts = [];
+                    if (best.rsi) parts.push('RSI ' + best.rsi.toFixed(2));
+                    if (best.power) parts.push(best.power + 'W');
+                    const extra = parts.join(' | ');
                     doc.text(extra, M + 130, y + 5);
                     y += 7;
                 });
@@ -3171,6 +4273,8 @@
 
         // "Nuovo Test" - full reset including session
         $('new-test-btn').addEventListener('click', () => {
+            // Abort any running auto-detect
+            autoDetectAborted = true;
             takeoffFrame = landingFrame = contactFrame = null;
             sessionAttempts = [];
             renderSession();
@@ -3178,6 +4282,8 @@
             $('calculate-btn').disabled = true;
             $('upload-zone').style.display = 'block';
             $('video-section').classList.remove('active');
+            // Free video memory before clearing src
+            if (currentVideoUrl) { URL.revokeObjectURL(currentVideoUrl); currentVideoUrl = null; }
             $('video-player').src = '';
             $('video-input').value = '';
             $('fps-confirm-banner').classList.remove('visible');
@@ -3199,6 +4305,9 @@
                 sessionAttempts = [];
                 localStorage.removeItem('airtime_history_v2');
                 localStorage.removeItem('airtime_athlete');
+                // Remove legacy keys to prevent re-migration on reload
+                localStorage.removeItem('hopp_history');
+                localStorage.removeItem('hopp_athlete');
                 $('weight-input').value = '';
                 $('squat-input').value = '';
                 $('name-input').value = '';
@@ -3212,9 +4321,56 @@
             localStorage.setItem('airtime-dismissed', '1');
         });
 
-        // Prevent double-tap zoom
+        // Prevent double-tap zoom — only on non-interactive elements
+        // Links, inputs, selects, textareas are excluded to preserve native behavior
         let lt = 0;
-        document.addEventListener('touchend', e => { const n = Date.now(); if (n - lt <= 300) e.preventDefault(); lt = n; }, false);
+        document.addEventListener('touchend', e => {
+            const tag = e.target.tagName;
+            if (tag === 'A' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+            const n = Date.now();
+            if (n - lt <= 300) e.preventDefault();
+            lt = n;
+        }, { passive: false });
+
+        // ============================================
+        // KEYBOARD SHORTCUTS (desktop)
+        // ============================================
+        document.addEventListener('keydown', e => {
+            // Skip if typing in an input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+            // Skip if no video loaded
+            if (!$('video-section').classList.contains('active')) return;
+
+            switch(e.key) {
+                case 'ArrowLeft': e.preventDefault(); stepFrame(-1); break;
+                case 'ArrowRight': e.preventDefault(); stepFrame(1); break;
+                case 'ArrowDown': e.preventDefault(); stepFrame(-5); break;
+                case 'ArrowUp': e.preventDefault(); stepFrame(5); break;
+                case ' ':
+                    e.preventDefault();
+                    $('play-pause').click();
+                    break;
+                case 't': case 'T': markFrame('takeoff'); break;
+                case 'l': case 'L': markFrame('landing'); break;
+                case 'c': case 'C':
+                    if (selectedJumpType === 'DJ') markFrame('contact');
+                    break;
+                case 'Enter':
+                    if (!$('calculate-btn').disabled) $('calculate-btn').click();
+                    break;
+            }
+        });
+
+        // Redraw motion chart on resize/orientation change
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (motionData.length > 0 && lastDetected && $('motion-chart').style.display !== 'none') {
+                    drawMotionChart(motionData, lastDetected);
+                }
+            }, 250);
+        });
 
         init();
     </script>
