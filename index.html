@@ -940,6 +940,11 @@
         .mark-btn.landing-btn.marked .frame-val { color: #4ECDC4; }
         /* FPS Section */
         .fps-section { margin-bottom: 1rem; }
+        .fps-note { margin-top: 0.5rem; font-size: 0.72rem; color: var(--slate-400); line-height: 1.4; }
+        .mark-hint { font-size: 0.72rem; color: var(--slate-400); line-height: 1.45; margin-bottom: 0.6rem; text-align: center; }
+        .mark-hint strong { color: var(--white); font-weight: 600; }
+        .result-precision { text-align: center; font-size: 0.78rem; color: var(--slate-400); margin: 0.4rem 0 0.75rem; position: relative; }
+        .result-precision.low { color: #F59E0B; }
         .fps-row { display: flex; gap: 0.5rem; align-items: center; }
         .fps-select {
             flex: 1;
@@ -1755,7 +1760,7 @@
                 <div class="fps-confirm-banner" id="fps-confirm-banner">
                     <div class="fps-confirm-text">FPS rilevato: <strong id="fps-detected-value">30</strong></div>
                     <div class="fps-slowmo-warning" id="fps-slowmo-warning" style="display:none; margin-bottom:0.6rem; padding:0.5rem 0.7rem; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:6px; font-size:0.75rem; color:#F59E0B; line-height:1.4;">
-                        Video lungo rilevato — potrebbe essere slow-motion. Se hai filmato in slow-mo, seleziona <strong>120</strong> o <strong>240 FPS</strong> manualmente.
+                        Video lungo: potrebbe essere uno slow-motion esportato rallentato. Se l'hai girato in slow-mo, premi <strong>Cambia</strong> e scegli la velocita di ripresa reale (<strong>120</strong> o <strong>240 FPS</strong>).
                     </div>
                     <div class="fps-confirm-buttons">
                         <button class="fps-confirm-btn confirm" id="fps-confirm-yes">Conferma</button>
@@ -1780,6 +1785,7 @@
                 </div>
                 <canvas id="detect-canvas"></canvas>
                 <div class="mark-section">
+                    <div class="mark-hint" id="mark-hint"><strong>Takeoff</strong> = ultimo frame con i piedi a terra · <strong>Landing</strong> = primo frame con i piedi di nuovo a terra</div>
                     <div class="mark-buttons" id="mark-buttons">
                         <button class="mark-btn takeoff-btn" id="mark-takeoff">
                             <span class="label">Takeoff <span class="ctrl-key">T</span></span>
@@ -1794,7 +1800,7 @@
                     </div>
                 </div>
                 <div class="fps-section">
-                    <div class="section-label">Frame Rate</div>
+                    <div class="section-label">Velocita di ripresa (FPS reali)</div>
                     <div class="fps-row">
                         <select class="fps-select" id="fps-select">
                             <option value="30">30 FPS</option>
@@ -1806,12 +1812,14 @@
                         <div class="fps-badge manual" id="fps-badge">MANUALE</div>
                     </div>
                     <input type="number" class="custom-fps-input" id="custom-fps" placeholder="FPS" min="1" max="1000">
+                    <div class="fps-note" id="fps-note"></div>
                 </div>
                 <button class="calculate-btn" id="calculate-btn" disabled>Calcola</button>
                 <div class="results" id="results">
                     <div class="result-label">Altezza Salto</div>
                     <div class="result-value"><span id="result-cm">0</span><span class="result-unit">cm</span></div>
                     <div class="result-jump-type" id="result-jump-type">CMJ</div>
+                    <div class="result-precision" id="result-precision"></div>
                     <div class="result-stats" id="result-stats"></div>
                     <div class="rating-badge" id="rating">-</div>
                     <!-- Normative Data Badge -->
@@ -2018,7 +2026,7 @@
         const jumpTypeInfo = {
             'CMJ': { name: 'Counter Movement Jump', note: 'Braccia ai fianchi, contromovimento naturale.', markers: 2 },
             'SJ': { name: 'Squat Jump', note: 'Partenza statica da 90, nessun contromovimento.', markers: 2 },
-            'DJ': { name: 'Drop Jump', note: 'Caduta da box + salto reattivo. Marca: Contact > Takeoff > Landing.', markers: 3 },
+            'DJ': { name: 'Drop Jump', note: 'Caduta da box + salto reattivo. Marca: Contact (primo frame a terra dopo la caduta) > Takeoff (ultimo a terra) > Landing (primo a terra).', markers: 3 },
             'ABALAKOV': { name: 'Abalakov', note: 'CMJ con slancio braccia.', markers: 2 },
             'SL-CMJ-L': { name: 'Single-Leg CMJ Sinistro', note: 'CMJ su gamba sinistra. Braccia libere.', markers: 2 },
             'SL-CMJ-R': { name: 'Single-Leg CMJ Destro', note: 'CMJ su gamba destra. Braccia libere.', markers: 2 },
@@ -2027,7 +2035,8 @@
         // ============================================
         // STATE
         // ============================================
-        let videoFps = 30;
+        let videoFps = 30;      // capture fps (real time per timeline frame = 1/videoFps)
+        let playbackFps = 30;   // timeline fps of the loaded file (frame stepping/indexing)
         let fpsConfirmed = false;
         let takeoffFrame = null;
         let landingFrame = null;
@@ -2080,6 +2089,179 @@
         const $ = id => document.getElementById(id);
 
         // ============================================
+        // CORE (pure, no DOM) — unit-tested by tests/core.test.mjs
+        // ============================================
+        // Timing model:
+        //   playbackFps = frame rate of the file's timeline (what the browser steps through)
+        //   captureFps  = real acquisition rate chosen by the user (>= playbackFps)
+        //   A slowed slow-mo export (e.g. 240fps shot, 30fps file) has playbackFps=30,
+        //   captureFps=240: each timeline frame lasts 1/240 s of real time.
+        //   Frame indices are always timeline frames; real durations use captureFps.
+        //
+        // Marking convention (unbiased estimator):
+        //   takeoff = LAST frame with feet on the ground
+        //   landing = FIRST frame with feet on the ground again
+        //   contact (DJ) = FIRST frame with feet on the ground after the drop
+        //   True takeoff lies in (T, T+1), true landing in (L-1, L) →
+        //   expected flight = L - T - 1 frames; ground contact = T - C + 1 frames.
+        // CORE-START
+        const G = 9.81;
+        const Core = {
+            // Timeline frame index shown at media time t (s)
+            frameAtTime(t, playbackFps) {
+                return Math.max(0, Math.floor(t * playbackFps + 1e-6));
+            },
+            // Seek target for frame f: middle of the frame's display interval,
+            // robust to float error and to container timestamp rounding
+            timeForFrame(f, playbackFps) {
+                return (f + 0.5) / playbackFps;
+            },
+            flightFrames(takeoff, landing) {
+                return landing - takeoff - 1;
+            },
+            contactFrames(contact, takeoff) {
+                return takeoff - contact + 1;
+            },
+            heightFromFlight(flightTimeS) {
+                return (G * flightTimeS * flightTimeS) / 8 * 100; // cm
+            },
+            // Height with quantization bounds: each event is known to ±0.5 frame,
+            // so flight is bounded within ±1 frame.
+            jumpMeasure(takeoff, landing, captureFps) {
+                const frames = Core.flightFrames(takeoff, landing);
+                const dt = 1 / captureFps;
+                const ft = frames * dt;
+                const cm = Core.heightFromFlight(ft);
+                const lo = Core.heightFromFlight(Math.max(0, ft - dt));
+                const hi = Core.heightFromFlight(ft + dt);
+                return { frames, flightTime: ft, cm, cmLow: lo, cmHigh: hi, plusMinus: (hi - lo) / 2 };
+            },
+            // captureFps can never be lower than the timeline rate
+            effectiveCaptureFps(captureFps, playbackFps) {
+                if (!(captureFps > 0)) return playbackFps;
+                if (playbackFps > 0 && captureFps < playbackFps - 0.5) return playbackFps;
+                return captureFps;
+            },
+            snapFps(raw) {
+                const common = [23.976, 24, 25, 29.97, 30, 50, 59.94, 60, 100, 119.88, 120, 239.76, 240, 480, 960];
+                let best = raw, bestD = Infinity;
+                for (const c of common) {
+                    const d = Math.abs(raw - c) / c;
+                    if (d < bestD) { bestD = d; best = c; }
+                }
+                return bestD < 0.02 ? best : Math.round(raw * 100) / 100;
+            },
+            // Parse MP4/MOV (ISO BMFF) and return the video track's frame rate from
+            // mdhd timescale + stts sample deltas. `read(offset, length)` → Promise<Uint8Array>.
+            async mp4VideoFps(read, fileSize) {
+                const u32 = (b, o) => ((b[o] << 24) >>> 0) + (b[o + 1] << 16) + (b[o + 2] << 8) + b[o + 3];
+                const u64 = (b, o) => u32(b, o) * 4294967296 + u32(b, o + 4);
+                const type = (b, o) => String.fromCharCode(b[o], b[o + 1], b[o + 2], b[o + 3]);
+                // Locate top-level moov (may be at the end of the file)
+                let off = 0, moov = null;
+                while (off + 8 <= fileSize) {
+                    const h = await read(off, 16);
+                    let size = u32(h, 0);
+                    const t = type(h, 4);
+                    let hdr = 8;
+                    if (size === 1) { size = u64(h, 8); hdr = 16; }
+                    else if (size === 0) size = fileSize - off;
+                    if (size < hdr) return null;
+                    if (t === 'moov') { moov = await read(off + hdr, size - hdr); break; }
+                    off += size;
+                }
+                if (!moov) return null;
+                const children = (b, start, end) => {
+                    const out = [];
+                    let o = start;
+                    while (o + 8 <= end) {
+                        let size = u32(b, o), hdr = 8;
+                        if (size === 1) { size = u64(b, o + 8); hdr = 16; }
+                        else if (size === 0) size = end - o;
+                        if (size < hdr || o + size > end) break;
+                        out.push({ type: type(b, o + 4), start: o + hdr, end: o + size });
+                        o += size;
+                    }
+                    return out;
+                };
+                const find = (b, box, t) => children(b, box.start, box.end).find(c => c.type === t);
+                const root = { start: 0, end: moov.length };
+                for (const trak of children(moov, root.start, root.end).filter(c => c.type === 'trak')) {
+                    const mdia = find(moov, trak, 'mdia'); if (!mdia) continue;
+                    const hdlr = find(moov, mdia, 'hdlr'); if (!hdlr) continue;
+                    if (type(moov, hdlr.start + 8) !== 'vide') continue;
+                    const mdhd = find(moov, mdia, 'mdhd'); if (!mdhd) continue;
+                    const v = moov[mdhd.start];
+                    const timescale = v === 1 ? u32(moov, mdhd.start + 20) : u32(moov, mdhd.start + 12);
+                    const minf = find(moov, mdia, 'minf'); if (!minf) continue;
+                    const stbl = find(moov, minf, 'stbl'); if (!stbl) continue;
+                    const stts = find(moov, stbl, 'stts'); if (!stts) continue;
+                    const n = u32(moov, stts.start + 4);
+                    // Weighted median of sample deltas → nominal frame duration
+                    const runs = [];
+                    let total = 0;
+                    for (let i = 0; i < n; i++) {
+                        const p = stts.start + 8 + i * 8;
+                        if (p + 8 > stts.end) break;
+                        const count = u32(moov, p), delta = u32(moov, p + 4);
+                        if (delta > 0) { runs.push({ count, delta }); total += count; }
+                    }
+                    if (!timescale || !total) continue;
+                    runs.sort((a, b) => a.delta - b.delta);
+                    let acc = 0, median = runs[0].delta;
+                    for (const r of runs) { acc += r.count; if (acc >= total / 2) { median = r.delta; break; } }
+                    return timescale / median;
+                }
+                return null;
+            },
+            // Motion-signal event detection. Returns timeline frame indices or null.
+            detectEvents(data, jumpType) {
+                const smoothed = data.map((v, i) => {
+                    const w = 3;
+                    let sum = 0, cnt = 0;
+                    for (let j = Math.max(0, i - w); j <= Math.min(data.length - 1, i + w); j++) { sum += data[j]; cnt++; }
+                    return sum / cnt;
+                });
+                const sorted = smoothed.filter(v => v > 0).sort((a, b) => a - b);
+                if (sorted.length < 10) return null;
+                const baseline = sorted[Math.floor(sorted.length * 0.3)];
+                const threshold = baseline * 3;
+                const spikes = [];
+                let inSpike = false, spikeStart = 0, spikeMax = 0, spikeMaxFrame = 0;
+                for (let i = 0; i < smoothed.length; i++) {
+                    if (smoothed[i] > threshold) {
+                        if (!inSpike) { inSpike = true; spikeStart = i; spikeMax = 0; }
+                        if (smoothed[i] > spikeMax) { spikeMax = smoothed[i]; spikeMaxFrame = i; }
+                    } else if (inSpike) {
+                        spikes.push({ start: spikeStart, end: i, peak: spikeMaxFrame, maxVal: spikeMax });
+                        inSpike = false;
+                    }
+                }
+                if (inSpike) spikes.push({ start: spikeStart, end: smoothed.length, peak: spikeMaxFrame, maxVal: spikeMax });
+                if (spikes.length < 2) return null;
+                if (jumpType === 'DJ' && spikes.length >= 3) {
+                    return { contact: spikes[0].peak, takeoff: spikes[1].peak, landing: spikes[2].peak };
+                }
+                if (jumpType === 'DJ') {
+                    const [s1, s2] = [...spikes].sort((a, b) => b.maxVal - a.maxVal);
+                    const first = s1.peak < s2.peak ? s1 : s2;
+                    const second = s1.peak < s2.peak ? s2 : s1;
+                    return { contact: first.start, takeoff: first.end, landing: second.peak };
+                }
+                const top = [...spikes].sort((a, b) => b.maxVal - a.maxVal).slice(0, 3).sort((a, b) => a.peak - b.peak);
+                let bestPair = null, maxGap = 0;
+                for (let i = 0; i < top.length - 1; i++) {
+                    for (let j = i + 1; j < top.length; j++) {
+                        const gap = top[j].peak - top[i].peak;
+                        if (gap > maxGap) { maxGap = gap; bestPair = [top[i], top[j]]; }
+                    }
+                }
+                return bestPair ? { takeoff: bestPair[0].peak, landing: bestPair[1].peak } : null;
+            }
+        };
+        // CORE-END
+
+        // ============================================
         // INIT
         // ============================================
         // ============================================
@@ -2088,7 +2270,7 @@
         const ONBOARDING_STEPS = [
             { icon: '⏱', title: 'Misura il tuo salto verticale', desc: 'Carica un video del tuo salto e AIRTIME calcolera altezza, potenza e indici di prestazione dalla durata del volo.', btn: 'Come funziona?' },
             { icon: '📹', title: 'Riprendi il salto', desc: 'Filma di lato, piedi ben visibili. Usa slow-motion (120-240 FPS) per la massima precisione. Video originale, non da WhatsApp.', btn: 'Poi?' },
-            { icon: '🎯', title: 'Marca takeoff e landing', desc: 'Scorri frame per frame e segna il momento del distacco e dell\'atterraggio. Puoi anche usare il rilevamento automatico.', btn: 'Inizia' }
+            { icon: '🎯', title: 'Marca takeoff e landing', desc: 'Scorri frame per frame. Takeoff = ultimo frame con i piedi a terra. Landing = primo frame in cui i piedi toccano di nuovo terra. Puoi partire dal rilevamento automatico e poi verificare.', btn: 'Inizia' }
         ];
         let onboardingStep = 0;
 
@@ -2774,8 +2956,25 @@
                 const roiTop = Math.round(h * 0.6);
                 const roiH = h - roiTop;
 
-                const totalFrames = Math.floor(vp.duration * videoFps);
+                const totalFrames = Math.floor(vp.duration * playbackFps);
                 motionData = new Array(totalFrames).fill(0);
+
+                const seekFrame = f => new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => { vp.onseeked = null; reject(new Error('seek timeout')); }, 3000);
+                    vp.onseeked = () => { clearTimeout(timeout); vp.onseeked = null; resolve(); };
+                    vp.currentTime = Core.timeForFrame(f, playbackFps);
+                });
+                const grab = () => {
+                    ctx.drawImage(vp, 0, 0, w, h);
+                    return ctx.getImageData(0, roiTop, w, roiH).data;
+                };
+                const diffScore = (a, b) => {
+                    let diff = 0;
+                    for (let i = 0; i < a.length; i += 4) {
+                        diff += Math.abs((a[i] + a[i+1] + a[i+2]) / 3 - (b[i] + b[i+1] + b[i+2]) / 3);
+                    }
+                    return diff / (a.length / 4);
+                };
 
                 let prevPixels = null;
                 // Adaptive step: target ~400-600 seeks max for any video
@@ -2788,25 +2987,11 @@
                 for (let f = 0; f < totalFrames; f += step) {
                     if (autoDetectAborted) return;
 
-                    // Seek with timeout — if onseeked never fires, abort after 3s
-                    vp.currentTime = f / videoFps;
-                    await new Promise((resolve, reject) => {
-                        const timeout = setTimeout(() => { vp.onseeked = null; reject(new Error('seek timeout')); }, 3000);
-                        vp.onseeked = () => { clearTimeout(timeout); resolve(); };
-                    });
-
-                    ctx.drawImage(vp, 0, 0, w, h);
-                    const imgData = ctx.getImageData(0, roiTop, w, roiH);
-                    const pixels = imgData.data;
+                    await seekFrame(f);
+                    const pixels = grab();
 
                     if (prevPixels) {
-                        let diff = 0;
-                        for (let i = 0; i < pixels.length; i += 4) {
-                            const grayNow = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
-                            const grayPrev = (prevPixels[i] + prevPixels[i+1] + prevPixels[i+2]) / 3;
-                            diff += Math.abs(grayNow - grayPrev);
-                        }
-                        const score = diff / (pixels.length / 4);
+                        const score = diffScore(pixels, prevPixels);
                         motionData[f] = score;
                         if (step > 1 && f > 0) {
                             for (let s = f - step + 1; s < f; s++) motionData[s] = score;
@@ -2824,10 +3009,29 @@
                     if (f % (step * 5) === 0) await new Promise(r => setTimeout(r, 0));
                 }
 
+                // Fine pass: the coarse pass has `step`-frame resolution. Re-sample
+                // every frame around each candidate event so results are frame-exact.
+                let detected = Core.detectEvents(motionData, selectedJumpType);
+                if (detected && step > 1) {
+                    text.textContent = 'Affinamento frame per frame...';
+                    const events = [detected.contact, detected.takeoff, detected.landing].filter(v => v != null);
+                    for (const e of events) {
+                        const from = Math.max(0, e - 2 * step), to = Math.min(totalFrames - 1, e + 2 * step);
+                        let prev = null;
+                        for (let f = from; f <= to; f++) {
+                            if (autoDetectAborted) return;
+                            await seekFrame(f);
+                            const px = grab();
+                            if (prev) motionData[f] = diffScore(px, prev);
+                            prev = new Uint8ClampedArray(px);
+                        }
+                    }
+                    detected = Core.detectEvents(motionData, selectedJumpType);
+                }
+
                 fill.style.width = '100%';
                 text.textContent = 'Rilevamento eventi...';
 
-                const detected = detectEvents(motionData);
                 if (detected) {
                     showAutoDetectResult(detected);
                     drawMotionChart(motionData, detected);
@@ -2849,93 +3053,6 @@
             prog.classList.remove('visible');
         }
 
-        function detectEvents(data) {
-            // Smooth the motion signal (moving average, window=3)
-            const smoothed = data.map((v, i) => {
-                const w = 3;
-                let sum = 0, cnt = 0;
-                for (let j = Math.max(0, i - w); j <= Math.min(data.length - 1, i + w); j++) {
-                    sum += data[j]; cnt++;
-                }
-                return sum / cnt;
-            });
-
-            // Find the baseline (median of lower 50% of values = "still" frames)
-            const sorted = [...smoothed].filter(v => v > 0).sort((a, b) => a - b);
-            if (sorted.length < 10) return null;
-            const baseline = sorted[Math.floor(sorted.length * 0.3)];
-            const threshold = baseline * 3; // Motion spike = 3x baseline
-
-            // Find motion spikes (frames above threshold)
-            const spikes = [];
-            let inSpike = false;
-            let spikeStart = 0;
-            let spikeMax = 0;
-            let spikeMaxFrame = 0;
-
-            for (let i = 0; i < smoothed.length; i++) {
-                if (smoothed[i] > threshold) {
-                    if (!inSpike) { inSpike = true; spikeStart = i; spikeMax = 0; }
-                    if (smoothed[i] > spikeMax) { spikeMax = smoothed[i]; spikeMaxFrame = i; }
-                } else if (inSpike) {
-                    spikes.push({ start: spikeStart, end: i, peak: spikeMaxFrame, maxVal: spikeMax });
-                    inSpike = false;
-                }
-            }
-
-            if (spikes.length < 2) return null;
-
-            if (selectedJumpType === 'DJ' && spikes.length >= 3) {
-                // DJ: 3 spikes = contact, takeoff, landing
-                return {
-                    contact: spikes[0].peak,
-                    takeoff: spikes[1].peak,
-                    landing: spikes[2].peak
-                };
-            }
-
-            if (selectedJumpType === 'DJ' && spikes.length >= 2) {
-                // DJ with 2 spikes: first = contact+takeoff merged, find the quiet gap
-                // Look for the quiet period between the two biggest spikes
-                const sorted = [...spikes].sort((a, b) => b.maxVal - a.maxVal);
-                const s1 = sorted[0], s2 = sorted[1];
-                const first = s1.peak < s2.peak ? s1 : s2;
-                const second = s1.peak < s2.peak ? s2 : s1;
-                return {
-                    contact: first.start,
-                    takeoff: first.end,
-                    landing: second.peak
-                };
-            }
-
-            // CMJ/SJ/Abalakov/SL: 2 spikes = takeoff, landing
-            // Pick the two most prominent spikes with the longest gap between them
-            // Sort by intensity and pick top 2
-            const topSpikes = [...spikes].sort((a, b) => b.maxVal - a.maxVal).slice(0, 3);
-            // Sort by time
-            topSpikes.sort((a, b) => a.peak - b.peak);
-
-            if (topSpikes.length >= 2) {
-                // Find the pair with the biggest gap (= flight time)
-                let bestPair = null;
-                let maxGap = 0;
-                for (let i = 0; i < topSpikes.length - 1; i++) {
-                    for (let j = i + 1; j < topSpikes.length; j++) {
-                        const gap = topSpikes[j].peak - topSpikes[i].peak;
-                        if (gap > maxGap) { maxGap = gap; bestPair = [topSpikes[i], topSpikes[j]]; }
-                    }
-                }
-                if (bestPair) {
-                    return {
-                        takeoff: bestPair[0].peak,
-                        landing: bestPair[1].peak
-                    };
-                }
-            }
-
-            return null;
-        }
-
         // ============================================
         // 10-5 RJT REMOVED — requires force plate or contact mat for reliable
         // GCT measurement. Video pixel analysis at 60fps: ±16.7ms/frame = ~8%
@@ -2949,17 +3066,11 @@
             let msg = '';
             if (detected.contact != null) {
                 msg = `Rilevato: Contact frame <strong>${detected.contact}</strong>, Takeoff frame <strong>${detected.takeoff}</strong>, Landing frame <strong>${detected.landing}</strong>`;
-                const flightFrames = detected.landing - detected.takeoff - 1;
-                const ft = flightFrames / videoFps;
-                const h = (9.81 * ft * ft) / 8 * 100;
-                msg += `<br>Stima: <strong>${h.toFixed(1)} cm</strong> (${flightFrames} frame di volo)`;
             } else {
                 msg = `Rilevato: Takeoff frame <strong>${detected.takeoff}</strong>, Landing frame <strong>${detected.landing}</strong>`;
-                const flightFrames = detected.landing - detected.takeoff - 1;
-                const ft = flightFrames / videoFps;
-                const h = (9.81 * ft * ft) / 8 * 100;
-                msg += `<br>Stima: <strong>${h.toFixed(1)} cm</strong> (${flightFrames} frame di volo)`;
             }
+            const m = Core.jumpMeasure(detected.takeoff, detected.landing, videoFps);
+            msg += `<br>Stima: <strong>${m.cm.toFixed(1)} cm</strong> ±${m.plusMinus.toFixed(1)} (${m.frames} frame di volo)`;
             msg += '<br><span style="font-size:0.7rem;opacity:0.6">Verifica i frame e aggiusta se necessario</span>';
 
             text.innerHTML = msg;
@@ -2992,8 +3103,7 @@
             result.classList.remove('visible');
 
             // Seek to takeoff for visual confirmation
-            $('video-player').currentTime = takeoffFrame / videoFps;
-            updateDisplay();
+            seekToFrame(takeoffFrame);
             navigator.vibrate?.([50, 50]);
         });
 
@@ -3020,8 +3130,7 @@
             result.classList.remove('visible');
 
             // Seek to takeoff
-            $('video-player').currentTime = takeoffFrame / videoFps;
-            updateDisplay();
+            seekToFrame(takeoffFrame);
         });
 
         let lastDetected = null; // Cache for redraw on resize
@@ -3103,12 +3212,10 @@
                 $('fps-badge').textContent = 'MANUALE';
                 $('fps-badge').className = 'fps-badge manual';
                 $('fps-confirm-banner').classList.remove('visible');
-                await attemptFpsDetection();
+                await attemptFpsDetection(file);
                 $('scrubber').max = vp.duration;
-                $('scrubber').step = 1 / videoFps;
-                vp.pause();
-                vp.currentTime = 0;
-                updateDisplay();
+                $('scrubber').step = 1 / playbackFps;
+                seekToFrame(0);
                 // Show auto-detect button
                 $('autodetect-btn').classList.add('visible');
                 $('autodetect-result').classList.remove('visible');
@@ -3117,26 +3224,50 @@
             }, { once: true });
         }
 
-        async function attemptFpsDetection() {
+        // Timeline fps: exact from the MP4/MOV container when possible, otherwise
+        // estimated by counting distinct frames while seeking.
+        async function attemptFpsDetection(file) {
+            const vp = $('video-player');
+            let detected = null, source = 'seek';
             try {
-                const detected = await detectFpsViaSeek();
-                if (detected && detected >= 15 && detected <= 300) {
-                    const common = [24,25,30,60,120,240];
-                    let fps = detected;
-                    for (const c of common) if (Math.abs(detected - c) <= 5) { fps = c; break; }
-                    $('fps-detected-value').textContent = fps + ' FPS';
-                    $('fps-confirm-banner').classList.add('visible');
-                    const opt = Array.from($('fps-select').options).find(o => +o.value === fps);
-                    if (opt) $('fps-select').value = fps; else { $('fps-select').value = 'custom'; $('custom-fps').value = fps; $('custom-fps').classList.add('visible'); }
-                    videoFps = fps;
+                detected = await Core.mp4VideoFps(
+                    async (off, len) => new Uint8Array(await file.slice(off, off + len).arrayBuffer()),
+                    file.size);
+                if (detected) source = 'container';
+            } catch(e) { detected = null; }
+            if (!(detected >= 10 && detected <= 1000)) {
+                try { detected = await detectFpsViaSeek(); source = 'seek'; }
+                catch(e) { detected = null; }
+            }
+            if (!(detected >= 10 && detected <= 1000)) {
+                // Unknown: keep manual choice, user must confirm
+                playbackFps = videoFps = +$('fps-select').value || 30;
+                return;
+            }
+            playbackFps = source === 'container' ? detected : Core.snapFps(detected);
+            videoFps = playbackFps;
+            const nominal = Core.snapFps(playbackFps);
+            $('fps-detected-value').textContent = `${Math.round(nominal)} FPS${source === 'seek' ? ' (stima)' : ''}`;
+            $('fps-confirm-banner').classList.add('visible');
+            const opt = Array.from($('fps-select').options).find(o => Math.abs(+o.value - nominal) / nominal < 0.02);
+            if (opt) { $('fps-select').value = opt.value; $('custom-fps').classList.remove('visible'); }
+            else { $('fps-select').value = 'custom'; $('custom-fps').value = Math.round(nominal); $('custom-fps').classList.add('visible'); }
+            // Slowed slow-mo exports play at 30/60 fps on the timeline but were shot at 120/240.
+            // Long clips at low timeline fps are the typical signature.
+            $('fps-slowmo-warning').style.display = (playbackFps <= 61 && vp.duration > 8) ? 'block' : 'none';
+            updateFpsNote();
+        }
 
-                    // Show slow-mo warning if: detected ≤30fps AND video is long (>8s)
-                    // Slow-mo videos are typically 4x longer than real time
-                    const vp = $('video-player');
-                    const mayBeSlowMo = fps <= 30 && vp.duration > 8;
-                    $('fps-slowmo-warning').style.display = mayBeSlowMo ? 'block' : 'none';
-                }
-            } catch(e) { console.warn('FPS detection failed:', e); }
+        // Shows how the timeline rate and the capture rate combine, plus the
+        // per-frame resolution the user will get.
+        function updateFpsNote() {
+            const el = $('fps-note');
+            if (!el) return;
+            const slow = videoFps / playbackFps;
+            const ms = (1000 / videoFps).toFixed(1);
+            el.innerHTML = slow > 1.05
+                ? `File a ${Math.round(playbackFps)} fps rallentato ×${slow.toFixed(slow % 1 ? 1 : 0)}: ogni frame = ${ms} ms reali`
+                : `Ogni frame = ${ms} ms${videoFps < 100 ? ' — per misure precise usa slow-mo 120/240' : ''}`;
         }
 
         // Seek-based FPS detection — works correctly with iPhone slow-mo.
@@ -3206,17 +3337,13 @@
 
             vp.currentTime = 0;
 
-            // Calculate and snap to nearest common FPS
+            // Snap to the nearest common timeline rate
             const rawFps = uniqueFrames / testDuration;
-            const common = [30, 60, 120, 240];
-            let bestFps = 30;
-            let bestDist = Infinity;
-            for (const c of common) {
+            let bestFps = 30, bestDist = Infinity;
+            for (const c of [24, 25, 30, 50, 60, 120, 240]) {
                 const dist = Math.abs(rawFps - c);
                 if (dist < bestDist) { bestDist = dist; bestFps = c; }
             }
-
-            console.log(`[FPS] Raw: ${rawFps.toFixed(1)}, Unique: ${uniqueFrames}/${numSeeks} in ${testDuration}s → ${bestFps}`);
             return bestFps;
         }
 
@@ -3225,13 +3352,20 @@
             $('fps-badge').textContent = 'AUTO';
             $('fps-badge').className = 'fps-badge auto';
             $('fps-confirm-banner').classList.remove('visible');
-            $('scrubber').step = 1 / videoFps;
             // Auto-start detection after FPS is confirmed
             runAutoDetect();
         });
         $('fps-confirm-no').addEventListener('click', () => { $('fps-confirm-banner').classList.remove('visible'); $('fps-select').focus(); });
 
-        const getCurrentFrame = () => Math.floor($('video-player').currentTime * videoFps);
+        // Frames are timeline frames; seeks land mid-frame so floor() is exact.
+        const getCurrentFrame = () => Core.frameAtTime($('video-player').currentTime, playbackFps);
+        function seekToFrame(f) {
+            const vp = $('video-player');
+            vp.pause();
+            const last = Math.max(0, Math.ceil((vp.duration || 0) * playbackFps) - 1);
+            vp.currentTime = Core.timeForFrame(Math.max(0, Math.min(last, f)), playbackFps);
+            updateDisplay();
+        }
         function updateDisplay() {
             $('current-frame').textContent = getCurrentFrame();
             $('current-time').textContent = $('video-player').currentTime.toFixed(3);
@@ -3248,7 +3382,7 @@
         $('video-player').addEventListener('pause', () => { $('play-icon').textContent = '▶'; $('play-text').textContent = 'Play'; });
         $('video-player').addEventListener('play', () => { $('play-icon').textContent = '⏸'; $('play-text').textContent = 'Pause'; });
 
-        function stepFrame(d) { const vp = $('video-player'); vp.pause(); vp.currentTime = Math.max(0, Math.min(vp.duration, vp.currentTime + d/videoFps)); updateDisplay(); }
+        function stepFrame(d) { seekToFrame(getCurrentFrame() + d); }
         $('prev-frame').addEventListener('click', () => stepFrame(-1));
         $('next-frame').addEventListener('click', () => stepFrame(1));
         $('prev-5-frame').addEventListener('click', () => stepFrame(-5));
@@ -3275,18 +3409,26 @@
                 fpsConfirmed = false;
             } else {
                 $('custom-fps').classList.remove('visible');
-                videoFps = +$('fps-select').value;
-                $('scrubber').step = 1/videoFps;
-                fpsConfirmed = true;
-                updateDisplay();
+                setCaptureFps(+$('fps-select').value);
                 // Auto-start detection after manual FPS selection
                 if ($('video-section').classList.contains('active')) runAutoDetect();
             }
         });
-        $('custom-fps').addEventListener('input', () => {
+        $('custom-fps').addEventListener('change', () => {
             const v = +$('custom-fps').value;
-            if (v > 0) { videoFps = v; $('scrubber').step = 1/videoFps; fpsConfirmed = true; updateDisplay(); }
+            if (v > 0) setCaptureFps(v);
         });
+
+        function setCaptureFps(v) {
+            const eff = Core.effectiveCaptureFps(v, playbackFps);
+            if (eff !== v) {
+                alert(`Il file ha ${Math.round(playbackFps)} frame al secondo: la velocita di ripresa non puo essere inferiore. Uso ${Math.round(playbackFps)} FPS.`);
+            }
+            videoFps = eff;
+            fpsConfirmed = true;
+            updateFpsNote();
+            updateDisplay();
+        }
 
         // ============================================
         // ATHLETE INPUTS
@@ -3322,15 +3464,20 @@
                 return;
             }
 
-            const flightFrames = landingFrame - takeoffFrame - 1;
-            const flightTime = flightFrames / videoFps;
-            const h = (9.81 * flightTime * flightTime) / 8 * 100;
+            const m = Core.jumpMeasure(takeoffFrame, landingFrame, videoFps);
+            const flightFrames = m.frames;
+            const flightTime = m.flightTime;
+            const h = m.cm;
+            if (flightFrames < 1) {
+                alert('Landing deve essere almeno 2 frame dopo Takeoff (Takeoff = ultimo frame a terra, Landing = primo frame di nuovo a terra).');
+                return;
+            }
 
-            lastResult = { cm: h, flightTime };
+            lastResult = { cm: h, flightTime, plusMinus: m.plusMinus };
 
             // DJ metrics
             if (selectedJumpType === 'DJ') {
-                const ctFrames = takeoffFrame - contactFrame + 1;
+                const ctFrames = Core.contactFrames(contactFrame, takeoffFrame);
                 const ct = ctFrames / videoFps;
                 lastResult.contactTime = ct;
                 lastResult.rsi = (h / 100) / ct;
@@ -3362,6 +3509,11 @@
 
             // Update UI
             $('result-cm').textContent = h.toFixed(1);
+            // Frame quantization bound (excludes marking error): ±1 frame on flight time
+            const prec = $('result-precision');
+            prec.textContent = `Precisione ±${m.plusMinus.toFixed(1)} cm (±1 frame a ${Math.round(videoFps)} fps)` +
+                (m.plusMinus > 1.5 ? ' — usa slow-mo per ridurla' : '');
+            prec.className = 'result-precision' + (m.plusMinus > 1.5 ? ' low' : '');
             $('result-jump-type').textContent = jumpTypeInfo[selectedJumpType].name;
             $('rating').textContent = getRating(h);
 
